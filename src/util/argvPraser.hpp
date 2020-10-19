@@ -1,5 +1,6 @@
 #pragma once
 #ifndef argv_praser
+#    define argv_praser
 
 #    include <algorithm>
 #    include <cctype>
@@ -191,4 +192,3 @@ public:
 }  // namespace ArgvPraser
 
 #endif
-#define argv_praser

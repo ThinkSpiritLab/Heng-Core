@@ -1,37 +1,21 @@
-#include <sstream>
-#include <string>
+#ifndef HC_HPP
+#define HC_HPP
 
+#include "config.hpp"
+#include "result.hpp"
 namespace HengCore
 {
-struct Config
+class Excutable
 {
-    long long   timeLimit   = -1;
-    long long   memLimit    = -1;
-    long long   outPutLimit = -1;
-    long long   uid         = 1;
-    long long   gid         = 1;
-    long long   maxPid      = -1;
-    std::string stdout      = "/dev/null";
-    std::string stderr      = "/dev/null";
-    std::string args        = "";
-    std::string bin         = "";
+private:
+    Config::Config cfg;
+    pid_t          childPid;
 
-    std::string toJson()
-    {
-        std::stringstream buffer;
-#define outPut(x) \
-    buffer << "\"" << #x << "\":\"" << x << "\"";
-        outPut(timeLimit);
-        outPut(memLimit);
-        outPut(outPutLimit);
-        outPut(uid);
-        outPut(maxPid);
-        outPut(stdout);
-        outPut(stderr);
-        outPut(args);
-        outPut(bin);
-#undef outPut
-        return buffer.str();
-    }
+    bool killChild();
+
+public:
+    void           exec();
+    Result::Result getResult() const;
 };
 }  // namespace HengCore
+#endif

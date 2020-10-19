@@ -1,7 +1,7 @@
 CXX ?= g++
 
 COMMON_FLAGS += -O2 -c\
-	-D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 \
+	-Iinclude \
 	-std=c++2a \
 	-fPIE \
 	-Wall -Wextra -Werror \
@@ -13,24 +13,24 @@ BUILD_DIR = build
 INSTALL_DIR = /usr/loacl/bin
 BIN = hc
 
-SRCS_CXX = hc.cpp
+SRCS_CXX = $(wildcard $(SRC_DIR)/*.cpp)
 SRCS_HXX = $(patsubst %.cpp,%.hpp,$(SRCS_CXX))
 
-_OBJ = $(patsubst %.cpp,%.o,$(SRCS_CXX))
-OBJ = $(addprefix $(BUILD_DIR)/,$(_OBJ))
+OBJ = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS_CXX))
 
 LIBS = 
 
-.PHONY : all clean install
+.PHONY:all clean install
 
-all : $(BIN)
+all:$(BIN)
 
-$(BIN) : $(OBJ)
+$(BIN):$(OBJ) $(SRCS_CXX) $(SRCS_HXX)
 	$(CXX) -o $(BIN) $(OBJ) $(LIBS) $(LDFLAGS)
 
+$(BUILD_DIR)/%.o:$(SRC_DIR)/%.cpp $(SRC_DIR)/%.hpp
+	$(CXX) $(COMMON_FLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/%.o:$(SRC_DIR)/%.cpp
-	$(CXX) $(COMMON_FLAGS) $(CPPFLAGS) $(CFLAGS) -c $^ -o $@
+$(SRC_DIR)/%.cpp:$(SRC_DIR)/%.hpp
 
 install:
 	cp $(BIN) $(INSTALL_DIR)
