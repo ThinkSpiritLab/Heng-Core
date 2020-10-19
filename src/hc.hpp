@@ -9,12 +9,13 @@ class Excutable
 {
 private:
     Config::Config cfg;
-    pid_t          childPid;
+    pid_t          childPid = -1;
 
     bool killChild();
 
 public:
-    void           exec();
+    Excutable(const Config::Config &cfg);
+    bool           exec();
     Result::Result getResult() const;
 };
 }  // namespace HengCore

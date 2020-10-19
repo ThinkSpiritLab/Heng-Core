@@ -10,6 +10,7 @@
 #    include <string>
 #    include <unordered_map>
 #    include <unordered_set>
+#    include <vector>
 
 namespace ArgvPraser
 {
@@ -39,10 +40,10 @@ public:
 };
 
 template <typename T>
-T prase(const std::string &str);
+void prase(const std::string &str, T &t);
 
 template <>
-bool prase<bool>(const std::string &str)
+void prase<bool>(const std::string &str, bool &b)
 {
     static const std::unordered_map<std::string, bool>
                 boolDictionary = { { "yes", true }, { "y", true },
@@ -56,7 +57,8 @@ bool prase<bool>(const std::string &str)
     auto it = boolDictionary.find(lower);
     if(it != boolDictionary.end())
     {
-        return it->second;
+        b = it->second;
+        return;
     }
     else
     {
@@ -65,27 +67,38 @@ bool prase<bool>(const std::string &str)
 }
 
 template <>
-int prase<int>(const std::string &str)
+void prase<int>(const std::string &str, int &i)
 {
-    return std::stoi(str);
+    i = std::stoi(str);
 }
 
 template <>
-long prase<long>(const std::string &str)
+void prase<long>(const std::string &str, long &i)
 {
-    return std::stol(str);
+    i = std::stol(str);
 }
 
 template <>
-long long prase<long long>(const std::string &str)
+void prase<long long>(const std::string &str, long long &i)
 {
-    return std::stoll(str);
+    i = std::stoll(str);
 }
 
 template <>
-std::string prase<std::string>(const std::string &str)
+void prase<std::string>(const std::string &str,
+                        std::string &      s)
 {
-    return str;
+    s = str;
+}
+
+template <>
+void prase<std::vector<std::string>>(
+  const std::string &      str,
+  std::vector<std::string>& vec)
+{
+    std::string t;
+    prase<std::string>(str, t);
+    vec.push_back(t);
 }
 
 template <class Options>
@@ -106,13 +119,15 @@ private:
     {
     private:
         OptionType Options::*pointer;
-        const std::function<OptionType(const std::string &)>
+        const std::function<void(const std::string &,
+                                       OptionType &)>
           praser;
 
     public:
         OptionParam(
-          OptionType Options::*                          p,
-          std::function<OptionType(const std::string &)> f =
+          OptionType Options::*                   p,
+          std::function<void(const std::string &,
+                                   OptionType &)> f =
             ArgvPraser::prase<OptionType>):
             pointer(p),
             praser(f)
@@ -121,7 +136,7 @@ private:
         bool praseOp(Options &          options,
                      const std::string &str) const override
         {
-            options.*pointer = praser(str);
+            praser(str, options.*pointer);
             return true;
         }
     };
