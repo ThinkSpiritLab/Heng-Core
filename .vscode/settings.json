@@ -50,6 +50,9 @@
         "cstring": "cpp",
         "forward_list": "cpp",
         "map": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "source_location": "cpp",
+        "thread": "cpp",
+        "codecvt": "cpp"
     }
 }

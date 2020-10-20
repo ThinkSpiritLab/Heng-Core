@@ -6,8 +6,7 @@ COMMON_FLAGS += -O2 -c\
 	-fPIE \
 	-Wall -Wextra -Werror \
 
-LD_FLAGS += --static
-
+LD_FLAGS += --static -lstdc++fs
 SRC_DIR = src
 BUILD_DIR = build
 INSTALL_DIR = /usr/loacl/bin
@@ -25,7 +24,7 @@ LIBS =
 all:$(BIN)
 
 $(BIN):$(OBJ) $(SRCS_CXX) $(SRCS_HXX)
-	$(CXX) -o $(BIN) $(OBJ) $(LIBS) $(LDFLAGS)
+	$(CXX) -o $(BIN) $(OBJ) $(LIBS) $(LD_FLAGS)
 
 $(BUILD_DIR)/%.o:$(SRC_DIR)/%.cpp $(SRC_DIR)/%.hpp
 	$(CXX) $(COMMON_FLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
