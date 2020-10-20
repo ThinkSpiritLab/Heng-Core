@@ -32,6 +32,9 @@ int main(int argc, char *argv[])
     Excutable excutable(arg);
     std::cout << nlohmann::json(arg).dump(4) << std::endl;
     std::cout << excutable.exec() << std::endl;
-
+    // excutable.killChild();
+    std::cout
+      << nlohmann::json(excutable.getResult()).dump(4)
+      << std::endl;
     return 0;
 }
