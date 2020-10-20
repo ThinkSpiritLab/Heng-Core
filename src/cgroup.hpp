@@ -21,7 +21,7 @@ namespace Cgroup
         Logger::Logger        logger;
 
     public:
-        enum SubSystem
+        enum class SubSystem
         {
             CPUSET  = 0,
             CPUACCT = 1,
@@ -35,7 +35,7 @@ namespace Cgroup
         Cgroup(const std::string &name);
         bool      setMemLimit(long long lim);
         long long getMemUsage();
-        bool      attach(pid_t pid);
+        bool               attach(pid_t pid);
         ~Cgroup();
     };
 

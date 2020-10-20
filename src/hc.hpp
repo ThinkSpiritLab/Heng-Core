@@ -10,7 +10,7 @@ namespace HengCore
 class Excutable
 {
 private:
-    Timer::Timer      timer;
+    Timer::Timer   timer;
     Config::Config cfg;
     Cgroup::Cgroup cgp;
     Logger::Logger logger;
@@ -20,6 +20,7 @@ private:
 public:
     Excutable(const Config::Config &cfg);
     bool           exec();
+    bool           waitChild();
     bool           killChild();
     bool           killTimer();
     Result::Result getResult();

@@ -57,6 +57,7 @@ bool Excutable::exec()
         {
             logger.log("ChildPid is "
                        + std::to_string(childPid));
+            cgp.attach(childPid);
             // It's parent process
             if(cfg.timeLimit > 0)
             {
@@ -85,6 +86,11 @@ bool Excutable::exec()
                 }
             }
 
+            if(cfg.memLimit > 0)
+            {
+                cgp.setMemLimit(cfg.memLimit);
+            }
+
             return true;
         }
     }
@@ -94,18 +100,50 @@ Result::Result Excutable::getResult()
 {
     logger.log("Try getResult");
     Result::Result res;
-    int            status;
-    waitpid(childPid, &status, 0);
+    // int            status;
+    // waitpid(childPid, &status, 0);
+    waitChild();
     killTimer();
     logger.log("Child process stoped");
     timer.stop();
     res.time = timer.get();
+    res.mem  = cgp.getMemUsage();
     return res;
 }
-
+bool Excutable::waitChild()
+{
+    logger.log("Wait Child process");
+    int status;
+    int pid;
+    while(true)
+    {
+        pid = wait(&status);
+        if(pid == -1 && errno == ECHILD)
+        {
+            break;
+        }
+        logger.log("Child " + std::to_string(pid));
+    }
+    return true;
+    // return kill(childPid, SIGKILL) == -1;
+}
 bool Excutable::killChild()
 {
-    return kill(childPid, SIGKILL) == -1;
+    logger.log("Kill Child process");
+    int status;
+    int pid;
+    while(true)
+    {
+        pid = waitpid(-1, &status, WNOHANG);
+        if(pid == -1 && errno == ECHILD)
+        {
+            break;
+        }
+        kill(pid, SIGKILL);
+        logger.log("Child " + std::to_string(pid));
+    }
+    return true;
+    // return kill(childPid, SIGKILL) == -1;
 }
 bool Excutable::killTimer()
 {
