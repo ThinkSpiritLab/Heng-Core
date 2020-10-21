@@ -20,6 +20,30 @@ namespace Cgroup
                                "memory/",
                                "pids/" };
 
+    const std::filesystem::path &
+    Cgroup::getSubSystemDir(Cgroup::SubSystem ss)
+    {
+        switch(ss)
+        {
+            case Cgroup::SubSystem::CPUSET:
+                return Cgroup::CgroupFsDirs[0];
+                break;
+            case Cgroup::SubSystem::CPUACCT:
+                return Cgroup::CgroupFsDirs[1];
+                break;
+            case Cgroup::SubSystem::MEMORY:
+                return Cgroup::CgroupFsDirs[2];
+                break;
+            case Cgroup::SubSystem::PIDS:
+                return Cgroup::CgroupFsDirs[3];
+                break;
+            default:
+                throw std::invalid_argument(
+                  "UnKnow SubSystem");
+                break;
+        }
+    }
+
     Cgroup::Cgroup(const std::string &name):
         CGroupPath(name),
         logger(name + "/cgroup")
@@ -111,7 +135,34 @@ namespace Cgroup
             return -1;
         }
     }
-
+    std::vector<pid_t>
+    Cgroup::getPidInGroup(Cgroup::SubSystem ss) const
+    {
+        std::filesystem::path path = CgroupFsBase;
+        path /= Cgroup::getSubSystemDir(ss);
+        path /= CGroupPath;
+        path /= "tasks";
+        std::error_code ec;
+        if(std::filesystem::is_regular_file(path, ec))
+        {
+            std::ifstream      tasksifs(path);
+            std::vector<pid_t> vec;
+            pid_t              pid;
+            while(tasksifs >> pid)
+            {
+                vec.push_back(pid);
+            }
+            tasksifs.close();
+            return vec;
+        }
+        else
+        {
+            throw std::filesystem::filesystem_error(
+              "SubSystem not exist",
+              path,
+              ec);
+        }
+    }
 
     Cgroup::~Cgroup()
     {

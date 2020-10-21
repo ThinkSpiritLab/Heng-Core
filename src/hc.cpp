@@ -110,40 +110,74 @@ Result::Result Excutable::getResult()
     res.mem  = cgp.getMemUsage();
     return res;
 }
+// bool Excutable::waitChild()
+// {
+//     logger.log("Wait Child process");
+//     int status;
+//     int pid;
+//     while(true)
+//     {
+//         pid = wait(&status);
+//         if(pid == -1 && errno == ECHILD)
+//         {
+//             break;
+//         }
+//         logger.log("Child " + std::to_string(pid)
+//                    + " Stoped");
+//     }
+//     return true;
+//     // return kill(childPid, SIGKILL) == -1;
+// }
 bool Excutable::waitChild()
 {
-    logger.log("Wait Child process");
-    int status;
-    int pid;
-    while(true)
+    logger.log("WaitChild Child process");
+    int                status;
+    std::vector<pid_t> vec;
+    do
     {
-        pid = wait(&status);
-        if(pid == -1 && errno == ECHILD)
+        vec = cgp.getPidInGroup();
+        logger.log("WaitChild, Found "
+                   + std::to_string(vec.size()));
+        for(auto pid: vec)
         {
-            break;
+            int res;
+            logger.log("WaitChild, PID "
+                       + std::to_string(pid));
+            res = waitpid(pid, &status, 0);
+            if(res == -1)
+            {
+                logger.err("WaitChild,GetError "
+                           + std::to_string(errno));
+                kill(pid, SIGKILL);
+            }
+            logger.log("WaitChild, PID "
+                       + std::to_string(pid) + " Stoped");
         }
-        logger.log("Child " + std::to_string(pid)
-                   + " Stoped");
-    }
+        sleep(1);
+    } while(vec.size() != 0);
     return true;
     // return kill(childPid, SIGKILL) == -1;
 }
 bool Excutable::killChild()
 {
-    logger.log("Kill Child process");
-    int status;
-    int pid;
-    while(true)
+    logger.log("KillChild Child process");
+    std::vector<pid_t> vec;
+    do
     {
-        pid = waitpid(-1, &status, WNOHANG);
-        if(pid == -1 && errno == ECHILD)
+        vec = cgp.getPidInGroup();
+        logger.log("KillChild, Found "
+                   + std::to_string(vec.size()));
+        for(auto pid: vec)
         {
-            break;
+            logger.log("KillChild, PID "
+                       + std::to_string(pid));
+            // waitpid(pid, &status, 0);
+            kill(pid, SIGKILL);
+            logger.log("KillChild, PID "
+                       + std::to_string(pid) + " Stoped");
         }
-        kill(pid, SIGKILL);
-        logger.log("Child " + std::to_string(pid)
-                   + " Killed");
-    }
+        sleep(1);
+    } while(vec.size() != 0);
     return true;
     // return kill(childPid, SIGKILL) == -1;
 }

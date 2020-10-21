@@ -32,10 +32,17 @@ namespace Cgroup
         static const std::filesystem::path CgroupFsBase;
         static const std::vector<std::filesystem::path>
           CgroupFsDirs;
+        static const std::filesystem::path &
+          getSubSystemDir(SubSystem ss);
+
         Cgroup(const std::string &name);
         bool      setMemLimit(long long lim);
         long long getMemUsage();
-        bool               attach(pid_t pid);
+        bool      attach(pid_t pid);
+
+        std::vector<pid_t> getPidInGroup(
+          SubSystem ss = SubSystem::MEMORY) const;
+
         ~Cgroup();
     };
 
