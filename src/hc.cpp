@@ -98,10 +98,10 @@ bool Excutable::exec()
             }
 
             in  = fopen(cfg.stdin.c_str(), "r");
-            out = fopen(cfg.stdout.c_str(), "w");
+            out = fopen(cfg.stdout.c_str(), "w+");
             if(cfg.stdout != cfg.stderr)
             {
-                err = fopen(cfg.stderr.c_str(), "w");
+                err = fopen(cfg.stderr.c_str(), "w+");
             }
             else
             {
@@ -115,17 +115,32 @@ bool Excutable::exec()
                 {
                     fclose(in);
                 }
+                else
+                {
+                    logger.err(
+                      "Failed to open file"
+                      "(in)");
+                }
                 if(out != nullptr)
                 {
                     fclose(out);
+                }
+                else
+                {
+                    logger.err(
+                      "Failed to open file"
+                      "(out)");
                 }
                 if(err != nullptr && err != out)
                 {
                     fclose(err);
                 }
-                logger.err(
-                  "Failed to open file"
-                  "(in/out/err)");
+                else
+                {
+                    logger.err(
+                      "Failed to open file"
+                      "(err)");
+                }
                 std::abort();
             }
             logger.flush();
