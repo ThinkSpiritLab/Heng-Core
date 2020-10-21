@@ -122,7 +122,8 @@ bool Excutable::waitChild()
         {
             break;
         }
-        logger.log("Child " + std::to_string(pid));
+        logger.log("Child " + std::to_string(pid)
+                   + " Stoped");
     }
     return true;
     // return kill(childPid, SIGKILL) == -1;
@@ -140,7 +141,8 @@ bool Excutable::killChild()
             break;
         }
         kill(pid, SIGKILL);
-        logger.log("Child " + std::to_string(pid));
+        logger.log("Child " + std::to_string(pid)
+                   + " Killed");
     }
     return true;
     // return kill(childPid, SIGKILL) == -1;
