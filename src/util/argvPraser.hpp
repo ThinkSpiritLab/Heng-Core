@@ -67,7 +67,8 @@ void prase<bool>(const std::string &str, bool &b)
 }
 
 template <>
-void prase<unsigned int>(const std::string &str, unsigned int &i)
+void prase<unsigned int>(const std::string &str,
+                         unsigned int &     i)
 {
     i = std::stoul(str);
 }
@@ -99,8 +100,8 @@ void prase<std::string>(const std::string &str,
 
 template <>
 void prase<std::vector<std::string>>(
-  const std::string &      str,
-  std::vector<std::string>& vec)
+  const std::string &       str,
+  std::vector<std::string> &vec)
 {
     std::string t;
     prase<std::string>(str, t);
@@ -126,15 +127,14 @@ private:
     private:
         OptionType Options::*pointer;
         const std::function<void(const std::string &,
-                                       OptionType &)>
+                                 OptionType &)>
           praser;
 
     public:
-        OptionParam(
-          OptionType Options::*                   p,
-          std::function<void(const std::string &,
-                                   OptionType &)> f =
-            ArgvPraser::prase<OptionType>):
+        OptionParam(OptionType Options::*             p,
+                    std::function<void(const std::string &,
+                                       OptionType &)> f =
+                      ArgvPraser::prase<OptionType>):
             pointer(p),
             praser(f)
         {
@@ -168,9 +168,8 @@ public:
         return *this;
     }
 
-    Options prase(int argc, char *argv[])
+    Options &prase(int argc, char *argv[], Options &opt)
     {
-        Options                         opt;
         std::unordered_set<std::string> got;
         for(int cur = 1; cur < argc;)
         {
@@ -208,7 +207,11 @@ public:
         }
         return opt;
     }
-    Options prase(int argc, char *argv[], Options &opt) {}
+    Options prase(int argc, char *argv[])
+    {
+        Options opt;
+        return prase(argc, argv, opt);
+    }
 };
 }  // namespace ArgvPraser
 
