@@ -20,6 +20,41 @@ namespace Cgroup
                                "memory/",
                                "pids/" };
 
+    void Cgroup::writeTo(Cgroup::SubSystem subSystem,
+                         const std::filesystem::path &file,
+                         std::string content)
+    {
+        std::filesystem::path path = CgroupFsBase;
+        path /= Cgroup::getSubSystemDir(subSystem);
+        path /= CGroupPath;
+        path /= file;
+        std::error_code ec;
+        logger.log("Try write " + content + " to "
+                   + path.string());
+        if(std::filesystem::is_regular_file(path, ec))
+        {
+            logger.log("it's regular_file");
+            std::ofstream ofs(path);
+            ofs << content;
+            logger.log("done");
+        }
+        else
+        {
+            logger.err("it's not regular_file");
+            throw std::filesystem::filesystem_error(
+              "SubSystem or file not exist",
+              path,
+              ec);
+        }
+    }
+
+    void Cgroup::writeTo(Cgroup::SubSystem subSystem,
+                         const std::filesystem::path &file,
+                         long long content)
+    {
+        writeTo(subSystem, file, std::to_string(content));
+    }
+
     const std::filesystem::path &
     Cgroup::getSubSystemDir(Cgroup::SubSystem ss)
     {
@@ -97,14 +132,28 @@ namespace Cgroup
     bool Cgroup::setMemLimit(long long lim)
     {
         logger.log("setMemLimit to " + std::to_string(lim));
-        std::filesystem::path path = CgroupFsBase;
-        path /= "memory";
-        path /= CGroupPath;
-        path /= "memory.limit_in_bytes";
         try
         {
-            std::ofstream ofs(path);
-            ofs << lim * 1024 * 1024;
+            writeTo(Cgroup::SubSystem::MEMORY,
+                    "memory.limit_in_bytes",
+                    lim * 1024 * 1024);
+        }
+        catch(std::filesystem::filesystem_error &fse)
+        {
+            logger.err(fse.what());
+            return false;
+        }
+        return true;
+    }
+
+    bool Cgroup::setPidLimit(long long lim)
+    {
+        logger.log("setPidLimit to " + std::to_string(lim));
+        try
+        {
+            writeTo(Cgroup::SubSystem::PIDS,
+                    "pids.max",
+                    lim);
         }
         catch(std::filesystem::filesystem_error &fse)
         {
@@ -141,7 +190,7 @@ namespace Cgroup
         std::filesystem::path path = CgroupFsBase;
         path /= Cgroup::getSubSystemDir(ss);
         path /= CGroupPath;
-        path /= "tasks";
+        path /= "cgroup.procs";
         std::error_code ec;
         if(std::filesystem::is_regular_file(path, ec))
         {

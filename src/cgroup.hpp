@@ -19,8 +19,6 @@ namespace Cgroup
         // const std::string     name;
         std::filesystem::path CGroupPath;
         Logger::Logger        logger;
-
-    public:
         enum class SubSystem
         {
             CPUSET  = 0,
@@ -28,20 +26,32 @@ namespace Cgroup
             MEMORY  = 2,
             PIDS    = 3
         };
+
+        static const std::filesystem::path &
+        getSubSystemDir(SubSystem ss);
+
+        void writeTo(SubSystem                    subSystem,
+                     const std::filesystem::path &file,
+                     std::string                  content);
+
+        void writeTo(SubSystem                    subSystem,
+                     const std::filesystem::path &file,
+                     long long                    content);
+
+    public:
         static const mode_t                CgroupFsMode;
         static const std::filesystem::path CgroupFsBase;
         static const std::vector<std::filesystem::path>
           CgroupFsDirs;
-        static const std::filesystem::path &
-          getSubSystemDir(SubSystem ss);
 
         Cgroup(const std::string &name);
         bool      setMemLimit(long long lim);
+        bool      setPidLimit(long long lim);
         long long getMemUsage();
         bool      attach(pid_t pid);
 
-        std::vector<pid_t> getPidInGroup(
-          SubSystem ss = SubSystem::MEMORY) const;
+        std::vector<pid_t>
+        getPidInGroup(SubSystem ss = SubSystem::PIDS) const;
 
         ~Cgroup();
     };

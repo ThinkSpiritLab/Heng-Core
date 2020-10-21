@@ -18,6 +18,14 @@ Excutable::Excutable(const Config::Config &cfg):
     cgp("hengCore/" + std::to_string(getpid())),
     logger("hengCore/Excutable/" + std::to_string(getpid()))
 {
+    if(cfg.memLimit > 0)
+    {
+        cgp.setMemLimit(cfg.memLimit);
+    }
+    if(cfg.maxPid > 0)
+    {
+        cgp.setPidLimit(cfg.maxPid);
+    }
 }
 
 bool Excutable::exec()
@@ -37,7 +45,6 @@ bool Excutable::exec()
             // It's child process
             logger.log("In child process , pid "
                        + std::to_string(getpid()));
-            cgp.attach(childPid);
             char *vec[cfg.args.size() + 2];
             int   vecSize = 0;
             vec[vecSize++] =
@@ -59,6 +66,7 @@ bool Excutable::exec()
             logger.log("ChildPid is "
                        + std::to_string(childPid));
             // It's parent process
+            cgp.attach(childPid);
             if(cfg.timeLimit > 0)
             {
                 timerPid = fork();
@@ -84,11 +92,6 @@ bool Excutable::exec()
                           + std::to_string(timerPid));
                     }
                 }
-            }
-
-            if(cfg.memLimit > 0)
-            {
-                cgp.setMemLimit(cfg.memLimit);
             }
 
             return true;
