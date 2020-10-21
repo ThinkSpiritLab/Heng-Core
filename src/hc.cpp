@@ -37,6 +37,7 @@ bool Excutable::exec()
             // It's child process
             logger.log("In child process , pid "
                        + std::to_string(getpid()));
+            cgp.attach(childPid);
             char *vec[cfg.args.size() + 2];
             int   vecSize = 0;
             vec[vecSize++] =
@@ -57,7 +58,6 @@ bool Excutable::exec()
         {
             logger.log("ChildPid is "
                        + std::to_string(childPid));
-            cgp.attach(childPid);
             // It's parent process
             if(cfg.timeLimit > 0)
             {
@@ -153,7 +153,7 @@ bool Excutable::waitChild()
             logger.log("WaitChild, PID "
                        + std::to_string(pid) + " Stoped");
         }
-        sleep(1);
+        // sleep(1);
     } while(vec.size() != 0);
     return true;
     // return kill(childPid, SIGKILL) == -1;
@@ -176,7 +176,7 @@ bool Excutable::killChild()
             logger.log("KillChild, PID "
                        + std::to_string(pid) + " Stoped");
         }
-        sleep(1);
+        // sleep(1);
     } while(vec.size() != 0);
     return true;
     // return kill(childPid, SIGKILL) == -1;
