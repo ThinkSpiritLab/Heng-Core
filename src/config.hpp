@@ -12,15 +12,16 @@ namespace Config
 {
     struct Config
     {
-        long long                timeLimit   = -1;
-        long long                memLimit    = -1;
+        long long timeLimit = -1;
+        long long memLimit  = -1;
         // long long                outPutLimit = -1;
-        uid_t                    uid         = 1;
-        gid_t                    gid         = 1;
-        long long                maxPid      = -1;
+        uid_t                    uid    = 1;
+        gid_t                    gid    = 1;
+        long long                maxPid = -1;
         bool                     isRoot = getuid() == 0;
-        std::string              stdout = "/dev/null";
-        std::string              stderr = "/dev/null";
+        std::string              stdin  = "/dev/stdin";
+        std::string              stdout = "/dev/stdout";
+        std::string              stderr = "/dev/stderr";
         std::vector<std::string> args;
         std::string              bin = "";
     };

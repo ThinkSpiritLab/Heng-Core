@@ -30,6 +30,7 @@ namespace Logger
         Logger &log(std::string msg);
         Logger &out(std::string msg);
         Logger &err(std::string msg);
+        Logger &flush();
     };
 }  // namespace Logger
 }  // namespace HengCore

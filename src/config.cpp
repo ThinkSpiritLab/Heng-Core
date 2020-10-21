@@ -15,6 +15,7 @@ namespace Config
             { "gid", cfg.gid },
             { "maxPid", cfg.maxPid },
             { "isRoot", cfg.isRoot },
+            { "stdin", cfg.stdin },
             { "stdout", cfg.stdout },
             { "stderr", cfg.stderr },
             { "args", cfg.args },
@@ -29,6 +30,7 @@ namespace Config
         j.at("gid").get_to(cfg.gid);
         j.at("maxPid").get_to(cfg.maxPid);
         j.at("isRoot").get_to(cfg.isRoot);
+        j.at("stdin").get_to(cfg.stdin);
         j.at("stdout").get_to(cfg.stdout);
         j.at("stderr").get_to(cfg.stderr);
         j.at("args").get_to(cfg.args);

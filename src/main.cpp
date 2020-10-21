@@ -20,6 +20,8 @@ int main(int argc, char *argv[])
     praser.add("g", &Cfg::gid);
     praser.add("pidl", &Cfg::maxPid);
     praser.add("p", &Cfg::maxPid);
+    praser.add("stdin", &Cfg::stdin);
+    praser.add("i", &Cfg::stdin);
     praser.add("stdout", &Cfg::stdout);
     praser.add("o", &Cfg::stdout);
     praser.add("stderr", &Cfg::stderr);

@@ -1,12 +1,14 @@
 #include <exception>
 #include <vector>
 
-#include <cstdlib>
-#include <string>
 #include <sys/types.h>
 #include <sys/wait.h>
 // #include <thread>
 #include <unistd.h>
+
+#include <cstdio>
+#include <cstdlib>
+#include <string>
 
 #include "hc.hpp"
 #include "result.hpp"
@@ -47,6 +49,9 @@ bool Excutable::exec()
                        + std::to_string(getpid()));
             gid_t curGid = getgid();
             uid_t curUid = getuid();
+            FILE *in     = nullptr;
+            FILE *out    = nullptr;
+            FILE *err    = nullptr;
             if(curGid != cfg.gid)
             {
                 if(setgid(cfg.gid) != 0)
@@ -83,6 +88,54 @@ bool Excutable::exec()
                                + std::to_string(cfg.uid));
                 }
             }
+
+            if(cfg.stdin == cfg.stdout
+               || cfg.stdin == cfg.stderr)
+            {
+                logger.err(
+                  "stdin can't equal to stdout nor stderr");
+                std::abort();
+            }
+
+            in  = fopen(cfg.stdin.c_str(), "r");
+            out = fopen(cfg.stdout.c_str(), "w");
+            if(cfg.stdout != cfg.stderr)
+            {
+                err = fopen(cfg.stderr.c_str(), "w");
+            }
+            else
+            {
+                err = out;
+            }
+
+            if(in == nullptr || out == nullptr
+               || err == nullptr)
+            {
+                if(in != nullptr)
+                {
+                    fclose(in);
+                }
+                if(out != nullptr)
+                {
+                    fclose(out);
+                }
+                if(err != nullptr && err != out)
+                {
+                    fclose(err);
+                }
+                logger.err(
+                  "Failed to open file"
+                  "(in/out/err)");
+                std::abort();
+            }
+            logger.flush();
+            if(dup2(fileno(in), fileno(stdin)) == -1
+               || dup2(fileno(out), fileno(stdout)) == -1
+               || dup2(fileno(err), fileno(stderr)) == -1)
+            {
+                std::abort();
+            }
+
             char *vec[cfg.args.size() + 2];
             int   vecSize = 0;
             vec[vecSize++] =
@@ -131,7 +184,6 @@ bool Excutable::exec()
                     }
                 }
             }
-
             return true;
         }
     }

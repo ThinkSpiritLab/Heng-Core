@@ -79,8 +79,15 @@ namespace Logger
         }
         ss << "Err:" << msg << std::endl;
         loggerMutex.lock();
-        costream<std::cout>(cos::RED) << ss.str();
+        costream<std::cerr>(cos::RED) << ss.str();
         loggerMutex.unlock();
+        return *this;
+    }
+    Logger& Logger::flush()
+    {
+        std::clog << std::flush;
+        std::cout << std::flush;
+        std::cerr << std::flush;
         return *this;
     }
 }  // namespace Logger
