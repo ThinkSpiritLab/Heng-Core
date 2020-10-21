@@ -67,6 +67,12 @@ void prase<bool>(const std::string &str, bool &b)
 }
 
 template <>
+void prase<unsigned int>(const std::string &str, unsigned int &i)
+{
+    i = std::stoul(str);
+}
+
+template <>
 void prase<int>(const std::string &str, int &i)
 {
     i = std::stoi(str);

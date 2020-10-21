@@ -45,6 +45,44 @@ bool Excutable::exec()
             // It's child process
             logger.log("In child process , pid "
                        + std::to_string(getpid()));
+            gid_t curGid = getgid();
+            uid_t curUid = getuid();
+            if(curGid != cfg.gid)
+            {
+                if(setgid(cfg.gid) != 0)
+                {
+                    logger.err("Failed to set gid from "
+                               + std::to_string(curGid)
+                               + " to "
+                               + std::to_string(cfg.gid));
+                    std::abort();
+                }
+                else
+                {
+                    logger.log("Set gid from "
+                               + std::to_string(curGid)
+                               + " to "
+                               + std::to_string(cfg.gid));
+                }
+            }
+            if(curUid != cfg.uid)
+            {
+                if(setuid(cfg.uid) != 0)
+                {
+                    logger.err("Failed to set uid from "
+                               + std::to_string(curUid)
+                               + " to "
+                               + std::to_string(cfg.uid));
+                    std::abort();
+                }
+                else
+                {
+                    logger.log("Set uid from "
+                               + std::to_string(curUid)
+                               + " to "
+                               + std::to_string(cfg.uid));
+                }
+            }
             char *vec[cfg.args.size() + 2];
             int   vecSize = 0;
             vec[vecSize++] =

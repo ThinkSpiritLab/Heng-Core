@@ -15,8 +15,8 @@ namespace Config
         long long                timeLimit   = -1;
         long long                memLimit    = -1;
         long long                outPutLimit = -1;
-        long long                uid         = 1;
-        long long                gid         = 1;
+        uid_t                    uid         = 1;
+        gid_t                    gid         = 1;
         long long                maxPid      = -1;
         bool                     isRoot = getuid() == 0;
         std::string              stdout = "/dev/null";
