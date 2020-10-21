@@ -32,6 +32,8 @@ Excutable::Excutable(const Config::Config &cfg):
 
 bool Excutable::exec()
 {
+    sign       = -1;
+    returnCode = -1;
     timer.begin();
     childPid = fork();
     if(childPid < 0)
@@ -98,10 +100,10 @@ bool Excutable::exec()
             }
 
             in  = fopen(cfg.stdin.c_str(), "r");
-            out = fopen(cfg.stdout.c_str(), "w+");
+            out = fopen(cfg.stdout.c_str(), "w");
             if(cfg.stdout != cfg.stderr)
             {
-                err = fopen(cfg.stderr.c_str(), "w+");
+                err = fopen(cfg.stderr.c_str(), "w");
             }
             else
             {
@@ -208,14 +210,14 @@ Result::Result Excutable::getResult()
 {
     logger.log("Try getResult");
     Result::Result res;
-    // int            status;
-    // waitpid(childPid, &status, 0);
     waitChild();
     killTimer();
     logger.log("Child process stoped");
     timer.stop();
-    res.time = timer.get();
-    res.mem  = cgp.getMemUsage();
+    res.time       = timer.get();
+    res.mem        = cgp.getMemUsage();
+    res.returnCode = returnCode;
+    res.signal     = sign;
     return res;
 }
 bool Excutable::waitChild()
@@ -223,6 +225,17 @@ bool Excutable::waitChild()
     logger.log("WaitChild Child process");
     int                status;
     std::vector<pid_t> vec;
+    if(waitpid(childPid, &status, 0) != -1)
+    {
+        if(WIFEXITED(status))
+        {
+            returnCode = WEXITSTATUS(status);
+        }
+        if(WIFSIGNALED(status))
+        {
+            sign = WTERMSIG(status);
+        }
+    }
     do
     {
         vec = cgp.getPidInGroup();
@@ -230,18 +243,22 @@ bool Excutable::waitChild()
                    + std::to_string(vec.size()));
         for(auto pid: vec)
         {
-            int res;
-            logger.log("WaitChild, PID "
-                       + std::to_string(pid));
-            res = waitpid(pid, &status, 0);
-            if(res == -1)
+            if(pid != childPid)
             {
-                logger.err("WaitChild,GetError "
-                           + std::to_string(errno));
-                kill(pid, SIGKILL);
+                int res;
+                logger.log("WaitChild, PID "
+                           + std::to_string(pid));
+                res = waitpid(pid, &status, 0);
+                if(res == -1)
+                {
+                    logger.err("WaitChild,GetError "
+                               + std::to_string(errno));
+                    kill(pid, SIGKILL);
+                }
+                logger.log("WaitChild, PID "
+                           + std::to_string(pid)
+                           + " Stoped");
             }
-            logger.log("WaitChild, PID "
-                       + std::to_string(pid) + " Stoped");
         }
         // sleep(1);
     } while(vec.size() != 0);

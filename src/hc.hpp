@@ -14,6 +14,8 @@ private:
     Config::Config cfg;
     Cgroup::Cgroup cgp;
     Logger::Logger logger;
+    int            returnCode;
+    int            sign;
     pid_t          childPid = -1;
     pid_t          timerPid = -1;
 

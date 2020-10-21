@@ -10,6 +10,7 @@ namespace Result
         long long mem;
         long long time;
         int       returnCode;
+        int       signal;
     };
     void to_json(nlohmann::json &j, const Result &res);
     void from_json(const nlohmann::json &j, Result &res);

@@ -1,6 +1,8 @@
 CXX ?= g++
 
-COMMON_FLAGS += -O2\
+
+
+COMMON_FLAGS += $(EXTRA) -O2\
 	-Iinclude \
 	-std=c++2a \
 	-fPIE \
@@ -29,6 +31,8 @@ LIBS =
 .PHONY:all clean install testbin
 
 all:$(BUILD_DIR) $(BIN) 
+
+
 
 testbin:$(TEST_BUILD) $(TEST_BIN)
 
