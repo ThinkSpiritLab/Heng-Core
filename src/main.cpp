@@ -29,12 +29,12 @@ int main(int argc, char *argv[])
     praser.add("args", &Cfg::args);
     praser.add("a", &Cfg::args);
     praser.add("bin", &Cfg::bin, true);
-    // std::cout << "#" << argv[0] << std::endl;
     auto      arg = praser.prase(argc, argv);
     Excutable excutable(arg);
+#ifdef DEBUG
     std::cout << nlohmann::json(arg).dump(4) << std::endl;
+#endif
     excutable.exec();
-    // excutable.killChild();
     std::cout
       << nlohmann::json(excutable.getResult()).dump(4)
       << std::endl;

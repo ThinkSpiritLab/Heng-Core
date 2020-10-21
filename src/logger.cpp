@@ -43,8 +43,9 @@ namespace Logger
         }
     }
 
-    Logger &Logger::log(std::string msg)
+    Logger &Logger::log([[maybe_unused]] std::string msg)
     {
+#ifdef LOG_LOG
         std::ostringstream ss;
         if(name.length() != 0)
         {
@@ -55,10 +56,12 @@ namespace Logger
         loggerMutex.lock();
         costream<std::clog>(cos::GREY) << ss.str();
         loggerMutex.unlock();
+#endif
         return *this;
     }
-    Logger &Logger::out(std::string msg)
+    Logger &Logger::out([[maybe_unused]] std::string msg)
     {
+#ifdef LOG_OUT
         std::ostringstream ss;
         if(name.length() != 0)
         {
@@ -68,10 +71,12 @@ namespace Logger
         loggerMutex.lock();
         costream<std::cout>(cos::WHITE) << ss.str();
         loggerMutex.unlock();
+#endif
         return *this;
     }
-    Logger &Logger::err(std::string msg)
+    Logger &Logger::err([[maybe_unused]] std::string msg)
     {
+#ifdef LOG_ERR
         std::ostringstream ss;
         if(name.length() != 0)
         {
@@ -81,9 +86,10 @@ namespace Logger
         loggerMutex.lock();
         costream<std::cerr>(cos::RED) << ss.str();
         loggerMutex.unlock();
+#endif
         return *this;
     }
-    Logger& Logger::flush()
+    Logger &Logger::flush()
     {
         std::clog << std::flush;
         std::cout << std::flush;

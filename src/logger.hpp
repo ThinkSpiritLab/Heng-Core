@@ -8,6 +8,12 @@
 #endif
 #include <string>
 
+#ifdef DEBUG
+#    define LOG_LOG
+#    define LOG_OUT
+#    define LOG_ERR
+#endif
+
 namespace HengCore
 {
 namespace Logger
