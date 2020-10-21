@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     auto praser = ArgvPraser::OptionPraser<Cfg>();
     praser.add("tl", &Cfg::timeLimit);
     praser.add("ml", &Cfg::memLimit);
-    praser.add("ol", &Cfg::outPutLimit);
+    // praser.add("ol", &Cfg::outPutLimit);
     praser.add("uid", &Cfg::uid);
     praser.add("u", &Cfg::uid);
     praser.add("gid", &Cfg::gid);

@@ -10,7 +10,7 @@ namespace Config
         j = nlohmann::json(
           { { "timeLimit", cfg.timeLimit },
             { "memLimit", cfg.memLimit },
-            { "outPutLimit", cfg.outPutLimit },
+            // { "outPutLimit", cfg.outPutLimit },
             { "uid", cfg.uid },
             { "gid", cfg.gid },
             { "maxPid", cfg.maxPid },
@@ -24,7 +24,7 @@ namespace Config
     {
         j.at("timeLimit").get_to(cfg.timeLimit);
         j.at("memLimit").get_to(cfg.memLimit);
-        j.at("outPutLimit").get_to(cfg.outPutLimit);
+        // j.at("outPutLimit").get_to(cfg.outPutLimit);
         j.at("uid").get_to(cfg.uid);
         j.at("gid").get_to(cfg.gid);
         j.at("maxPid").get_to(cfg.maxPid);

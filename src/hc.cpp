@@ -151,24 +151,6 @@ Result::Result Excutable::getResult()
     res.mem  = cgp.getMemUsage();
     return res;
 }
-// bool Excutable::waitChild()
-// {
-//     logger.log("Wait Child process");
-//     int status;
-//     int pid;
-//     while(true)
-//     {
-//         pid = wait(&status);
-//         if(pid == -1 && errno == ECHILD)
-//         {
-//             break;
-//         }
-//         logger.log("Child " + std::to_string(pid)
-//                    + " Stoped");
-//     }
-//     return true;
-//     // return kill(childPid, SIGKILL) == -1;
-// }
 bool Excutable::waitChild()
 {
     logger.log("WaitChild Child process");

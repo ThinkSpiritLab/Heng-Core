@@ -14,7 +14,7 @@ namespace Config
     {
         long long                timeLimit   = -1;
         long long                memLimit    = -1;
-        long long                outPutLimit = -1;
+        // long long                outPutLimit = -1;
         uid_t                    uid         = 1;
         gid_t                    gid         = 1;
         long long                maxPid      = -1;
