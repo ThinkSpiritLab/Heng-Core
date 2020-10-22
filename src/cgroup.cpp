@@ -175,7 +175,7 @@ namespace Cgroup
             long long     m;
             std::ifstream ifs(path);
             ifs >> m;
-            return m / 1024 / 1024;
+            return m;  // / 1024 / 1024;
         }
         catch(std::filesystem::filesystem_error &fse)
         {

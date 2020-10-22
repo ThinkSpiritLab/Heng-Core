@@ -4,7 +4,6 @@ CXX ?= g++
 
 COMMON_FLAGS += $(EXTRA) -O2\
 	-Iinclude \
-	-fcxx-exceptions \
 	-std=c++2a \
 	-fPIE \
 	-Wall -Wextra -Werror \

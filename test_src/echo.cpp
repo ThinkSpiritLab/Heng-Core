@@ -3,9 +3,9 @@
 
 int main(void)
 {
-    std::string s;
-    while(std::getline(std::cin, s))
+    char s;
+    while(std::cin.get(s))
     {
-        std::cout << s << std::endl;
+        std::cout << s;
     }
 }
