@@ -26,6 +26,8 @@ int main(int argc, char *argv[])
     praser.add("o", &Cfg::stdout);
     praser.add("stderr", &Cfg::stderr);
     praser.add("e", &Cfg::stderr);
+    praser.add("cwd", &Cfg::cwd);
+    praser.add("c", &Cfg::cwd);
     praser.add("args", &Cfg::args);
     praser.add("a", &Cfg::args);
     praser.add("bin", &Cfg::bin, true);

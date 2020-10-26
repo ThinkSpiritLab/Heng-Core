@@ -15,13 +15,14 @@ namespace Config
         long long timeLimit = -1;
         long long memLimit  = -1;
         // long long                outPutLimit = -1;
-        uid_t                    uid    = 1;
-        gid_t                    gid    = 1;
+        uid_t                    uid    = 0;
+        gid_t                    gid    = 0;
         long long                maxPid = -1;
         bool                     isRoot = getuid() == 0;
         std::string              stdin  = "/dev/stdin";
         std::string              stdout = "/dev/stdout";
         std::string              stderr = "/dev/stderr";
+        std::string              cwd    = "";
         std::vector<std::string> args;
         std::string              bin = "";
     };

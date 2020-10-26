@@ -99,6 +99,15 @@ bool Excutable::exec()
                 std::abort();
             }
 
+            if(!cfg.cwd.empty())
+            {
+                if(chdir(cfg.cwd.c_str()) == -1)
+                {
+                    logger.err("Failed to Set Cwd");
+                    std::abort();
+                }
+            }
+
             in  = fopen(cfg.stdin.c_str(), "r");
             out = fopen(cfg.stdout.c_str(), "w");
             if(cfg.stdout != cfg.stderr)

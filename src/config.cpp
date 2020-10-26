@@ -18,6 +18,7 @@ namespace Config
             { "stdin", cfg.stdin },
             { "stdout", cfg.stdout },
             { "stderr", cfg.stderr },
+            { "cwd", cfg.cwd },
             { "args", cfg.args },
             { "bin", cfg.bin } });
     }
@@ -33,6 +34,7 @@ namespace Config
         j.at("stdin").get_to(cfg.stdin);
         j.at("stdout").get_to(cfg.stdout);
         j.at("stderr").get_to(cfg.stderr);
+        j.at("cwd").get_to(cfg.cwd);
         j.at("args").get_to(cfg.args);
         j.at("bin").get_to(cfg.bin);
     }
