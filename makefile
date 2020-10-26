@@ -15,7 +15,7 @@ BUILD_DIR = build
 TEST_SRC = test_src
 TEST_BUILD = test_build
 
-INSTALL_DIR = /usr/loacl/bin
+INSTALL_DIR = /usr/local/bin
 BIN = hc
 
 TEST_SRCS_CXX = $(wildcard $(TEST_SRC)/*.cpp)
@@ -54,7 +54,7 @@ $(BUILD_DIR)/%.o:$(SRC_DIR)/%.cpp $(SRC_DIR)/%.hpp
 $(SRC_DIR)/%.cpp:$(SRC_DIR)/%.hpp
 
 install:
-	cp $(BIN) $(INSTALL_DIR)
+	cp $(BIN) $(INSTALL_DIR)/$(BIN)
 
 clean :
 	-rm $(BUILD_DIR) -rf
