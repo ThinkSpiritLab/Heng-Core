@@ -62,4 +62,8 @@ clean :
 	-rm $(TEST_BUILD) -rf
 
 
+debug:
+	make EXTRA=-DDEBUG
 
+test:
+	nohup ./hc -bin /usr/bin/ls

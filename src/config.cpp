@@ -5,6 +5,9 @@ namespace HengCore
 {
 namespace Config
 {
+    const std::string Config::defaultStdin  = "/dev/stdin";
+    const std::string Config::defaultStdout = "/dev/stdout";
+    const std::string Config::defaultStderr = "/dev/stderr";
     void to_json(nlohmann::json &j, const Config &cfg)
     {
         j = nlohmann::json(
