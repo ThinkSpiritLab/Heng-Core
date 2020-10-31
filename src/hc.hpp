@@ -12,14 +12,17 @@ class Excutable
 private:
     enum class ChildErrcode
     {
-        GOOD       = 0,
-        GIDFAIL    = -1,
-        UIDFAIL    = -2,
-        IOCONFILCT = -3,
-        OPENSTDIN  = -4,
-        OPENSTDOUT = -5,
-        OPENSTDERR = -6,
-        SETCWD     = -7
+        TIMERGOOD     = -1,
+        GIDFAIL       = -2,
+        UIDFAIL       = -3,
+        OPENSTDIN     = -4,
+        OPENSTDOUT    = -5,
+        OPENSTDERR    = -6,
+        IOCONFILCT    = -7,
+        REPLACESTDIN  = -8,
+        REPLACESTDOUT = -9,
+        REPLACESTDERR = -10,
+        SETCWD        = -11
 
     };
     Timer::Timer   timer;

@@ -179,12 +179,30 @@ void Excutable::inChild()
     }
 
     logger.flush();
-    // if(dup2(fileno(in), fileno(stdin)) == -1
-    //    || dup2(fileno(out), fileno(stdout)) == -1
-    //    || dup2(fileno(err), fileno(stderr)) == -1)
-    // {
-    //     std::abort();
-    // }
+    if(in != nullptr
+       && dup2(fileno(in), fileno(stdin)) == -1)
+    {
+        int errcode = errno;
+        logger.err("Failed to replace " + cfg.stdin
+                   + "(in) because " + strerror(errcode));
+        childExit(ChildErrcode::REPLACESTDIN);
+    }
+    if(out != nullptr
+       && dup2(fileno(out), fileno(stdout)) == -1)
+    {
+        int errcode = errno;
+        logger.err("Failed to replace " + cfg.stdout
+                   + "(out) because " + strerror(errcode));
+        childExit(ChildErrcode::REPLACESTDOUT);
+    }
+    if(err != nullptr
+       && dup2(fileno(err), fileno(stderr)) == -1)
+    {
+        int errcode = errno;
+        logger.err("Failed to replace " + cfg.stderr
+                   + "(err) because " + strerror(errcode));
+        childExit(ChildErrcode::REPLACESTDERR);
+    }
 
     char *vec[cfg.args.size() + 2];
     int   vecSize  = 0;
@@ -208,7 +226,7 @@ void Excutable::inTimer()
         logger.log("Time out");
         killChild();
     }
-    childExit(ChildErrcode::GOOD);
+    childExit(ChildErrcode::TIMERGOOD);
 }
 
 bool Excutable::exec()
