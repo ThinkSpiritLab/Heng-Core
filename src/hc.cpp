@@ -314,6 +314,8 @@ Result::Result Excutable::getResult()
     logger.log("Child process stoped");
     timer.stop();
     res.time.real  = timer.get();
+    res.time.usr   = cgp.getTimeUsr();
+    res.time.sys   = cgp.getTimeSys();
     res.mem        = cgp.getMemUsage();
     res.returnCode = returnCode;
     res.signal     = sign;

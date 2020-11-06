@@ -52,6 +52,8 @@ namespace Cgroup
         bool      setMemLimit(long long lim);
         bool      setPidLimit(long long lim);
         long long getMemUsage();
+        long long getTimeUsr();
+        long long getTimeSys();
         bool      attach(pid_t pid);
 
         std::vector<pid_t>

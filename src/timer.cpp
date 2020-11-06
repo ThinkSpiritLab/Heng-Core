@@ -16,7 +16,7 @@ Timer &Timer::stop(void)
 int64_t Timer::get(void)
 {
     return std::chrono::duration_cast<
-             std::chrono::microseconds>(end_ - start_)
+             std::chrono::nanoseconds>(end_ - start_)
       .count();
 }
 

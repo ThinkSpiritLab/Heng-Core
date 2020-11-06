@@ -209,6 +209,40 @@ namespace Cgroup
         }
     }
 
+    long long Cgroup::getTimeUsr()
+    {
+        logger.log("getTimeUsr");
+        try
+        {
+            return Cgroup::readFrom<long long>(
+              Cgroup::SubSystem::CPUACCT,
+              "cpuacct.usage_user");
+        }
+        catch(std::filesystem::filesystem_error &fse)
+        {
+            logger.err(fse.what());
+            // return false;
+            return -1;
+        }
+    }
+
+    long long Cgroup::getTimeSys()
+    {
+        logger.log("getTimeSys");
+        try
+        {
+            return Cgroup::readFrom<long long>(
+              Cgroup::SubSystem::CPUACCT,
+              "cpuacct.usage_sys");
+        }
+        catch(std::filesystem::filesystem_error &fse)
+        {
+            logger.err(fse.what());
+            // return false;
+            return -1;
+        }
+    }
+
     std::vector<pid_t>
     Cgroup::getPidInGroup(Cgroup::SubSystem ss) const
     {
