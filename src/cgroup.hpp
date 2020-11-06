@@ -38,6 +38,10 @@ namespace Cgroup
                      const std::filesystem::path &file,
                      long long                    content);
 
+        template <typename T>
+        T readFrom(SubSystem                    subSystem,
+                   const std::filesystem::path &file);
+
     public:
         static const mode_t                CgroupFsMode;
         static const std::filesystem::path CgroupFsBase;

@@ -36,9 +36,15 @@ int main(int argc, char *argv[])
 #ifdef DEBUG
     std::cout << nlohmann::json(arg).dump(4) << std::endl;
 #endif
-    excutable.exec();
-    std::cout
-      << nlohmann::json(excutable.getResult()).dump(4)
-      << std::endl;
+    if(excutable.exec())
+    {
+        std::cout
+          << nlohmann::json(excutable.getResult()).dump(4)
+          << std::endl;
+    }
+    else
+    {
+        return -1;
+    }
     return 0;
 }

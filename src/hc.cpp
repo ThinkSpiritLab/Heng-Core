@@ -223,6 +223,7 @@ void Excutable::inTimer()
     if(cfg.timeLimit > 0)
     {
         sleep(cfg.timeLimit);
+        write(timerPipe[1], "\1\0", 2);
         logger.log("Time out");
         killChild();
     }
@@ -258,6 +259,17 @@ bool Excutable::exec()
             cgp.attach(childPid);
             if(cfg.timeLimit > 0)
             {
+                if(pipe(timerPipe) != 0)
+                {
+                    int errcode = errno;
+                    logger.err(
+                      "Failed to create timer pipe "
+                      "because "
+                      + std::string(strerror(errcode)));
+                    killChild();
+                    return false;
+                }
+                close(timerPipe[1]);
                 timerPid = fork();
                 if(timerPid < 0)
                 {
@@ -274,6 +286,7 @@ bool Excutable::exec()
                     if(timerPid == 0)
                     {
                         // It's timer process
+                        close(timerPipe[0]);
                         inTimer();
                     }
                     else
@@ -300,7 +313,7 @@ Result::Result Excutable::getResult()
     }
     logger.log("Child process stoped");
     timer.stop();
-    res.time       = timer.get();
+    res.time.real  = timer.get();
     res.mem        = cgp.getMemUsage();
     res.returnCode = returnCode;
     res.signal     = sign;

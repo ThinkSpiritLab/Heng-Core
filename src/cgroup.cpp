@@ -55,6 +55,35 @@ namespace Cgroup
         writeTo(subSystem, file, std::to_string(content));
     }
 
+    template <typename T>
+    T Cgroup::readFrom(Cgroup::SubSystem subSystem,
+                       const std::filesystem::path &file)
+    {
+        std::filesystem::path path = Cgroup::CgroupFsBase;
+        path /= Cgroup::getSubSystemDir(subSystem);
+        path /= CGroupPath;
+        path /= file;
+        std::error_code ec;
+        logger.log("Try read from " + path.string());
+        if(std::filesystem::is_regular_file(path, ec))
+        {
+            T t;
+            logger.log("it's regular_file");
+            std::ifstream ifs(path);
+            ifs >> t;
+            logger.log("done");
+            return t;
+        }
+        else
+        {
+            logger.err("it's not regular_file");
+            throw std::filesystem::filesystem_error(
+              "SubSystem or file not exist",
+              path,
+              ec);
+        }
+    }
+
     const std::filesystem::path &
     Cgroup::getSubSystemDir(Cgroup::SubSystem ss)
     {
@@ -166,16 +195,11 @@ namespace Cgroup
     long long Cgroup::getMemUsage()
     {
         logger.log("getMemUsage");
-        std::filesystem::path path = CgroupFsBase;
-        path /= "memory";
-        path /= CGroupPath;
-        path /= "memory.max_usage_in_bytes";
         try
         {
-            long long     m;
-            std::ifstream ifs(path);
-            ifs >> m;
-            return m;  // / 1024 / 1024;
+            return Cgroup::readFrom<long long>(
+              Cgroup::SubSystem::MEMORY,
+              "memory.max_usage_in_bytes");
         }
         catch(std::filesystem::filesystem_error &fse)
         {
@@ -184,6 +208,7 @@ namespace Cgroup
             return -1;
         }
     }
+
     std::vector<pid_t>
     Cgroup::getPidInGroup(Cgroup::SubSystem ss) const
     {
