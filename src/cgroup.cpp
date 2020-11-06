@@ -283,7 +283,10 @@ namespace Cgroup
             logger.log("remove " + path.string());
             try
             {
-                std::filesystem::remove_all(path);
+                if(std::filesystem::is_directory(path))
+                {
+                    std::filesystem::remove_all(path);
+                }
             }
             catch(std::filesystem::filesystem_error &fse)
             {
