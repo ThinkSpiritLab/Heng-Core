@@ -249,6 +249,7 @@ bool Excutable::exec()
         {
             // It's child process
             inChild();
+            // should not continue;
             return false;
         }
         else
@@ -391,6 +392,13 @@ bool Excutable::killChild()
 }
 bool Excutable::killTimer()
 {
-    return kill(timerPid, SIGKILL) == -1;
+    if(timerPid != -1)
+    {
+        return kill(timerPid, SIGKILL) == -1;
+    }
+    else
+    {
+        return false;
+    }
 }
 }  // namespace HengCore

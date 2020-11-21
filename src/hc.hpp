@@ -37,6 +37,8 @@ private:
     void           inChild();
     void           inTimer();
     void           childExit(ChildErrcode returnCode);
+    void           handleGid();
+    void           handleUid();
 
 public:
     Excutable(const Config::Config &cfg);
