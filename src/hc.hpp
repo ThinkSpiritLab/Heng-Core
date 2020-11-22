@@ -7,24 +7,24 @@
 #include "timer.hpp"
 namespace HengCore
 {
+enum class ChildErrcode
+{
+    TIMERGOOD     = -1,
+    GIDFAIL       = -2,
+    UIDFAIL       = -3,
+    OPENSTDIN     = -4,
+    OPENSTDOUT    = -5,
+    OPENSTDERR    = -6,
+    IOCONFILCT    = -7,
+    REPLACESTDIN  = -8,
+    REPLACESTDOUT = -9,
+    REPLACESTDERR = -10,
+    SETCWD        = -11
+
+};
 class Excutable
 {
 private:
-    enum class ChildErrcode
-    {
-        TIMERGOOD     = -1,
-        GIDFAIL       = -2,
-        UIDFAIL       = -3,
-        OPENSTDIN     = -4,
-        OPENSTDOUT    = -5,
-        OPENSTDERR    = -6,
-        IOCONFILCT    = -7,
-        REPLACESTDIN  = -8,
-        REPLACESTDOUT = -9,
-        REPLACESTDERR = -10,
-        SETCWD        = -11
-
-    };
     Timer::Timer   timer;
     Config::Config cfg;
     Cgroup::Cgroup cgp;
