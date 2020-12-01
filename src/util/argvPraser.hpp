@@ -40,6 +40,9 @@ public:
 };
 
 template <typename T>
+using PraseFunction = void(const std::string &, T &t);
+
+template <typename T>
 void prase(const std::string &str, T &t);
 
 template <>
@@ -98,16 +101,6 @@ void prase<std::string>(const std::string &str,
     s = str;
 }
 
-template <>
-void prase<std::vector<std::string>>(
-  const std::string &       str,
-  std::vector<std::string> &vec)
-{
-    std::string t;
-    prase<std::string>(str, t);
-    vec.push_back(t);
-}
-
 template <class Options>
 class OptionPraser
 {
@@ -116,9 +109,9 @@ private:
     {
     private:
     public:
-        virtual bool
-        praseOp(Options &          options,
-                const std::string &str) const = 0;
+        virtual int praseOp(Options &options,
+                            int      argc,
+                            char *   argv[]) const = 0;
     };
 
     template <typename OptionType>
@@ -126,24 +119,63 @@ private:
     {
     private:
         OptionType Options::*pointer;
-        const std::function<void(const std::string &,
-                                 OptionType &)>
+        const std::function<PraseFunction<OptionType>>
           praser;
 
     public:
-        OptionParam(OptionType Options::*             p,
-                    std::function<void(const std::string &,
-                                       OptionType &)> f =
-                      ArgvPraser::prase<OptionType>):
+        OptionParam(OptionType Options::*p,
+                    std::function<PraseFunction<OptionType>>
+                      f = ArgvPraser::prase<OptionType>):
             pointer(p),
             praser(f)
         {
         }
-        bool praseOp(Options &          options,
-                     const std::string &str) const override
+        int praseOp(Options &options,
+                    int      argc,
+                    char *   argv[]) const override
         {
-            praser(str, options.*pointer);
-            return true;
+            if(argc)
+            {
+                praser(std::string(argv[0]),
+                       options.*pointer);
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+    };
+
+    template <typename OptionType, typename Alloc>
+    class OptionParam<std::vector<OptionType, Alloc>>:
+        public OptionParamBase
+    {
+    private:
+        std::vector<OptionType, Alloc> Options::*pointer;
+        const std::function<PraseFunction<OptionType>>
+          praser;
+
+    public:
+        OptionParam(
+          std::vector<OptionType, Alloc> Options::*p,
+          std::function<PraseFunction<OptionType>> f =
+            ArgvPraser::prase<OptionType>):
+            pointer(p),
+            praser(f)
+        {
+        }
+        int praseOp(Options &options,
+                    int      argc,
+                    char *   argv[]) const override
+        {
+            for(int i = 0; i < argc; ++i)
+            {
+                OptionType t;
+                praser(std::string(argv[i]), t);
+                (options.*pointer).push_back(t);
+            }
+            return argc;
         }
     };
 
@@ -183,14 +215,17 @@ public:
                 if(it != optionMap.end())
                 {
                     got.insert(name);
-                    it->second->praseOp(opt, argv[cur + 1]);
+                    cur +=
+                      1
+                      + it->second->praseOp(opt,
+                                            argc - cur - 1,
+                                            argv + cur + 1);
                 }
                 else
                 {
                     throw std::invalid_argument(
                       "Unknow arg " + name);
                 }
-                cur += 2;
             }
             else
             {
