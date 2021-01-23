@@ -12,7 +12,9 @@ int main(int argc, char *argv[])
 {
     auto praser = ArgvPraser::OptionPraser<Cfg>();
     praser.add("tl", &Cfg::timeLimit);
+    praser.add("t", &Cfg::timeLimit);
     praser.add("ml", &Cfg::memLimit);
+    praser.add("m", &Cfg::memLimit);
     // praser.add("ol", &Cfg::outPutLimit);
     praser.add("uid", &Cfg::uid);
     praser.add("u", &Cfg::uid);
@@ -26,6 +28,7 @@ int main(int argc, char *argv[])
     praser.add("o", &Cfg::stdout);
     praser.add("stderr", &Cfg::stderr);
     praser.add("e", &Cfg::stderr);
+    praser.add("f", &Cfg::outFd);
     praser.add("cwd", &Cfg::cwd);
     praser.add("c", &Cfg::cwd);
     praser.add("args", &Cfg::args);
@@ -38,9 +41,17 @@ int main(int argc, char *argv[])
 #endif
     if(excutable.exec())
     {
-        std::cout
-          << nlohmann::json(excutable.getResult()).dump(4)
-          << std::endl;
+        std::string result =
+          nlohmann::json(excutable.getResult()).dump(4);
+        if(arg.outFd != -1)
+        {
+            // dup2(arg.outFd, fileno(stdout));
+            write(arg.outFd, result.c_str(), result.size());
+        }
+        else
+        {
+            std::cout << result << std::endl;
+        }
     }
     else
     {

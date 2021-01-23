@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <string>
 #include <sys/types.h>
+#include <unistd.h>
 #include <vector>
 
 #include "logger.hpp"
@@ -19,6 +20,7 @@ namespace Cgroup
         // const std::string     name;
         std::filesystem::path CGroupPath;
         Logger::Logger        logger;
+        pid_t                   masterPid;
         enum class SubSystem
         {
             CPUSET  = 0,

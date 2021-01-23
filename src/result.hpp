@@ -7,7 +7,7 @@ namespace Result
 {
     struct Result
     {
-        long long mem;
+        long long memory;
         struct TimeUsage
         {
             long long sys;

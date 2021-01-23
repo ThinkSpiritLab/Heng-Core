@@ -48,7 +48,7 @@ $(BIN):$(OBJ) $(SRCS_CXX) $(SRCS_HXX)
 $(TEST_BUILD)/%.o:$(TEST_SRC)/%.cpp
 	$(CXX) $(COMMON_FLAGS) $(CPPFLAGS) $(CFLAGS) $< -o $@
 
-$(BUILD_DIR)/%.o:$(SRC_DIR)/%.cpp $(SRC_DIR)/%.hpp
+$(BUILD_DIR)/%.o:$(SRC_DIR)/%.cpp $(SRC_DIR)/%.hpp $(SRCS_HXX)
 	$(CXX) $(COMMON_FLAGS) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 $(SRC_DIR)/%.cpp:$(SRC_DIR)/%.hpp

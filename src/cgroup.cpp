@@ -110,7 +110,8 @@ namespace Cgroup
 
     Cgroup::Cgroup(const std::string &name):
         CGroupPath(name),
-        logger(name + "/cgroup")
+        logger(name + "/cgroup"),
+        masterPid(getpid())
     {
         logger.log("created cgroup " + CGroupPath.string());
         for(const auto &subDir: CgroupFsDirs)
@@ -274,26 +275,31 @@ namespace Cgroup
 
     Cgroup::~Cgroup()
     {
-        logger.log("remove cgroup " + CGroupPath.string());
-        for(const auto &subDir: CgroupFsDirs)
+        if(getpid() == masterPid)
         {
-            std::filesystem::path path = CgroupFsBase;
-            path /= subDir;
-            path /= CGroupPath;
-            logger.log("remove " + path.string());
-            try
+            logger.log("remove cgroup "
+                       + CGroupPath.string());
+            for(const auto &subDir: CgroupFsDirs)
             {
-                if(std::filesystem::is_directory(path))
+                std::filesystem::path path = CgroupFsBase;
+                path /= subDir;
+                path /= CGroupPath;
+                logger.log("remove " + path.string());
+                try
                 {
-                    std::filesystem::remove_all(path);
+                    if(std::filesystem::is_directory(path))
+                    {
+                        std::filesystem::remove_all(path);
+                    }
+                }
+                catch(
+                  std::filesystem::filesystem_error &fse)
+                {
+                    logger.err(fse.what());
                 }
             }
-            catch(std::filesystem::filesystem_error &fse)
-            {
-                logger.err(fse.what());
-            }
+            logger.log("removed");
         }
-        logger.log("removed");
     }
 }  // namespace Cgroup
 }  // namespace HengCore

@@ -118,7 +118,7 @@ Result::Result Excutable::getResult()
     res.time.real  = timer.get();
     res.time.usr   = cgp.getTimeUsr();
     res.time.sys   = cgp.getTimeSys();
-    res.mem        = cgp.getMemUsage();
+    res.memory        = cgp.getMemUsage();
     res.returnCode = returnCode;
     res.signal     = sign;
     return res;

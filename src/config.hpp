@@ -21,6 +21,7 @@ namespace Config
         std::string stdin     = Config::defaultStdin;
         std::string stdout    = Config::defaultStdout;
         std::string stderr    = Config::defaultStderr;
+        int         outFd     = -1;
         std::string cwd;
         std::vector<std::string> args;
         std::string              bin;
