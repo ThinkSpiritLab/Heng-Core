@@ -11,17 +11,45 @@
 #include <cstring>
 #include <string>
 
-#include "hc.hpp"
 #include "hc.child.hpp"
+#include "hc.hpp"
 #include "result.hpp"
 
 namespace HengCore
 {
 
-void Excutable::childExit(
-  ChildErrcode returnCode)
+int FileHandler::getfd() const
 {
-    std::quick_exit(static_cast<int>(returnCode));
+    return fileno(fp);
+}
+
+FileHandler getFileHandler(const std::string fileName,
+                           const std::string mod)
+{
+    if(fileName == Config::Config::defaultStdin
+       && mod == "r")
+    {
+        return { stdin };
+    }
+    else if(fileName == Config::Config::defaultStderr
+            && mod == "w")
+    {
+        return { stderr };
+    }
+    else if(fileName == Config::Config::defaultStdout
+            && mod == "w")
+    {
+        return { stdout };
+    }
+    else
+    {
+        return { fopen(fileName.c_str(), mod.c_str()) };
+    }
+}
+
+void Excutable::childExit(ChildErrcode returnCode)
+{
+    std::exit(static_cast<int>(returnCode));
 }
 
 void Excutable::inChild()
@@ -216,6 +244,5 @@ void Excutable::inTimer()
     }
     childExit(ChildErrcode::TIMERGOOD);
 }
-
 
 }  // namespace HengCore

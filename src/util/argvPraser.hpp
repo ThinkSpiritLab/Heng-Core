@@ -112,6 +112,7 @@ private:
         virtual int praseOp(Options &options,
                             int      argc,
                             char *   argv[]) const = 0;
+        virtual ~OptionParamBase() = default;
     };
 
     template <typename OptionType>
@@ -246,6 +247,13 @@ public:
     {
         Options opt;
         return prase(argc, argv, opt);
+    }
+    ~OptionPraser()
+    {
+        for(auto iter: optionMap)
+        {
+            delete iter.second;
+        }
     }
 };
 }  // namespace ArgvPraser

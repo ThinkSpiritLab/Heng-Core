@@ -32,11 +32,11 @@ namespace Logger
             err
         };
         Logger(std::string name);
-        Logger &log(Level l, std::string msg);
-        Logger &log(std::string msg);
-        Logger &out(std::string msg);
-        Logger &err(std::string msg);
-        Logger &flush();
+        const Logger &log(Level l, std::string msg) const;
+        const Logger &log(std::string msg) const;
+        const Logger &out(std::string msg) const;
+        const Logger &err(std::string msg) const;
+        const Logger &flush() const;
     };
 }  // namespace Logger
 }  // namespace HengCore

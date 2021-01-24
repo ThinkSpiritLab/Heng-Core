@@ -24,7 +24,8 @@ namespace Logger
 
     Logger::Logger(std::string name): name(name) {}
 
-    Logger &Logger::log(Logger::Level l, std::string msg)
+    const Logger &Logger::log(Logger::Level l,
+                              std::string   msg) const
     {
         switch(l)
         {
@@ -43,7 +44,8 @@ namespace Logger
         }
     }
 
-    Logger &Logger::log([[maybe_unused]] std::string msg)
+    const Logger &Logger::log([
+      [maybe_unused]] std::string msg) const
     {
 #ifdef LOG_LOG
         std::ostringstream ss;
@@ -59,7 +61,8 @@ namespace Logger
 #endif
         return *this;
     }
-    Logger &Logger::out([[maybe_unused]] std::string msg)
+    const Logger &Logger::out([
+      [maybe_unused]] std::string msg) const
     {
 #ifdef LOG_OUT
         std::ostringstream ss;
@@ -74,7 +77,8 @@ namespace Logger
 #endif
         return *this;
     }
-    Logger &Logger::err([[maybe_unused]] std::string msg)
+    const Logger &Logger::err([
+      [maybe_unused]] std::string msg) const
     {
 #ifdef LOG_ERR
         std::ostringstream ss;
@@ -89,7 +93,7 @@ namespace Logger
 #endif
         return *this;
     }
-    Logger &Logger::flush()
+    const Logger &Logger::flush() const
     {
         std::clog << std::flush;
         std::cout << std::flush;

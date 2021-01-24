@@ -7,6 +7,17 @@
 #include "timer.hpp"
 namespace HengCore
 {
+
+class FileHandler
+{
+public:
+    FILE *fp;
+    int   getfd() const;
+};
+
+const FileHandler
+getFileHandler(const std::string fileName);
+
 enum class ChildErrcode
 {
     TIMERGOOD     = -1,

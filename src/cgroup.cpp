@@ -22,7 +22,7 @@ namespace Cgroup
 
     void Cgroup::writeTo(Cgroup::SubSystem subSystem,
                          const std::filesystem::path &file,
-                         std::string content)
+                         std::string content) const
     {
         std::filesystem::path path = CgroupFsBase;
         path /= Cgroup::getSubSystemDir(subSystem);
@@ -50,14 +50,15 @@ namespace Cgroup
 
     void Cgroup::writeTo(Cgroup::SubSystem subSystem,
                          const std::filesystem::path &file,
-                         long long content)
+                         long long content) const
     {
         writeTo(subSystem, file, std::to_string(content));
     }
 
     template <typename T>
-    T Cgroup::readFrom(Cgroup::SubSystem subSystem,
-                       const std::filesystem::path &file)
+    T Cgroup::readFrom(
+      Cgroup::SubSystem            subSystem,
+      const std::filesystem::path &file) const
     {
         std::filesystem::path path = Cgroup::CgroupFsBase;
         path /= Cgroup::getSubSystemDir(subSystem);
@@ -132,7 +133,7 @@ namespace Cgroup
         logger.log("Done");
     }
 
-    bool Cgroup::attach(pid_t pid)
+    bool Cgroup::attach(pid_t pid) const
     {
         logger.log("attach pid" + std::to_string(pid));
         for(const auto &subDir: CgroupFsDirs)
@@ -159,7 +160,7 @@ namespace Cgroup
         return true;
     }
 
-    bool Cgroup::setMemLimit(long long lim)
+    bool Cgroup::setMemLimit(long long lim) const
     {
         logger.log("setMemLimit to " + std::to_string(lim));
         try
@@ -176,7 +177,7 @@ namespace Cgroup
         return true;
     }
 
-    bool Cgroup::setPidLimit(long long lim)
+    bool Cgroup::setPidLimit(long long lim) const
     {
         logger.log("setPidLimit to " + std::to_string(lim));
         try
@@ -193,7 +194,7 @@ namespace Cgroup
         return true;
     }
 
-    long long Cgroup::getMemUsage()
+    long long Cgroup::getMemUsage() const
     {
         logger.log("getMemUsage");
         try
@@ -210,7 +211,7 @@ namespace Cgroup
         }
     }
 
-    long long Cgroup::getTimeUsr()
+    long long Cgroup::getTimeUsr() const
     {
         logger.log("getTimeUsr");
         try
@@ -227,7 +228,7 @@ namespace Cgroup
         }
     }
 
-    long long Cgroup::getTimeSys()
+    long long Cgroup::getTimeSys() const
     {
         logger.log("getTimeSys");
         try
