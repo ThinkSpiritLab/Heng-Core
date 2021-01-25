@@ -20,30 +20,58 @@ namespace HengCore
 
 int FileHandler::getfd() const
 {
-    return fileno(fp);
+    if(fp != NULL)
+    {
+        return fileno(fp);
+    }
+    else
+    {
+        throw std::invalid_argument(
+          "fp is NULL , maybe FILE doesn't exist");
+    }
 }
 
-FileHandler getFileHandler(const std::string fileName,
-                           const std::string mod)
+const FileHandler &FileHandler::setTo(FILE *lop) const
+{
+    if(lop != fp && lop != NULL)
+    {
+        if(dup2(fileno(fp), fileno(lop)) == -1)
+        {
+            throw std::runtime_error(strerror(errno));
+        }
+    }
+    return *this;
+}
+
+FileHandler::FileHandler(const std::string fileName,
+                         const std::string mod) noexcept
 {
     if(fileName == Config::Config::defaultStdin
        && mod == "r")
     {
-        return { stdin };
+        fp = stdin;
     }
     else if(fileName == Config::Config::defaultStderr
             && mod == "w")
     {
-        return { stderr };
+        fp = stderr;
     }
     else if(fileName == Config::Config::defaultStdout
             && mod == "w")
     {
-        return { stdout };
+        fp = stdout;
     }
     else
     {
-        return { fopen(fileName.c_str(), mod.c_str()) };
+        fp = fopen(fileName.c_str(), mod.c_str());
+    }
+}
+
+FileHandler::~FileHandler() noexcept
+{
+    if(fp != NULL)
+    {
+        fclose(fp);
     }
 }
 
@@ -58,9 +86,6 @@ void Excutable::inChild()
                + std::to_string(getpid()));
     gid_t curGid = getgid();
     uid_t curUid = getuid();
-    FILE *in     = nullptr;
-    FILE *out    = nullptr;
-    FILE *err    = nullptr;
     if(curGid != cfg.gid)
     {
         if(setgid(cfg.gid) != 0)
@@ -137,104 +162,36 @@ void Excutable::inChild()
         logger.log("Cwd skip");
     }
 
-    if(cfg.stdin != Config::Config::defaultStdin)
-    {
-        in = fopen(cfg.stdin.c_str(), "r");
-        if(in == nullptr)
-        {
-            int err = errno;
-            logger.err("Failed to open " + cfg.stdin
-                       + "(in) because " + strerror(err));
-            childExit(ChildErrcode::OPENSTDIN);
-        }
-    }
-    else
-    {
-        logger.log("stdin skip");
-    }
-    if(cfg.stdout != Config::Config::defaultStdout)
-    {
-        out = fopen(cfg.stdout.c_str(), "r");
-        if(out == nullptr)
-        {
-            int err = errno;
-            logger.err("Failed to open " + cfg.stdout
-                       + "(out) because " + strerror(err));
-            childExit(ChildErrcode::OPENSTDOUT);
-        }
-    }
-    else
-    {
-        logger.log("stdout skip");
-    }
-    if(cfg.stderr != Config::Config::defaultStderr)
-    {
-        if(cfg.stderr != cfg.stdout)
-        {
-
-            err = fopen(cfg.stderr.c_str(), "r");
-            if(err == nullptr)
-            {
-                int errcode = errno;
-                logger.err("Failed to open " + cfg.stderr
-                           + "(err) because "
-                           + strerror(errcode));
-                childExit(ChildErrcode::OPENSTDERR);
-            }
-        }
-        else
-        {
-            err = out;
-            logger.log("stderr skip same as out");
-        }
-    }
-    else
-    {
-        logger.log("stderr skip default");
-    }
-
     logger.flush();
-    if(in != nullptr
-       && dup2(fileno(in), fileno(stdin)) == -1)
-    {
-        int errcode = errno;
-        logger.err("Failed to replace " + cfg.stdin
-                   + "(in) because " + strerror(errcode));
-        childExit(ChildErrcode::REPLACESTDIN);
-    }
-    if(out != nullptr
-       && dup2(fileno(out), fileno(stdout)) == -1)
-    {
-        int errcode = errno;
-        logger.err("Failed to replace " + cfg.stdout
-                   + "(out) because " + strerror(errcode));
-        childExit(ChildErrcode::REPLACESTDOUT);
-    }
-    if(err != nullptr
-       && dup2(fileno(err), fileno(stderr)) == -1)
-    {
-        int errcode = errno;
-        logger.err("Failed to replace " + cfg.stderr
-                   + "(err) because " + strerror(errcode));
-        childExit(ChildErrcode::REPLACESTDERR);
-    }
 
-    char *vec[cfg.args.size() + 2];
-    int   vecSize  = 0;
-    vec[vecSize++] = const_cast<char *>(cfg.bin.c_str());
-    for(const auto &s: cfg.args)
     {
-        vec[vecSize++] = const_cast<char *>(s.c_str());
+        FileHandler in(cfg.stdin, "r");
+        in.setTo(stdin);
+        FileHandler out(cfg.stdout, "w");
+        out.setTo(stdout);
+        FileHandler err(cfg.stderr, "w");
+        err.setTo(stderr);
+
+        char *vec[cfg.args.size() + 2];
+        int   vecSize = 0;
+        vec[vecSize++] =
+          const_cast<char *>(cfg.bin.c_str());
+        for(const auto &s: cfg.args)
+        {
+            vec[vecSize++] = const_cast<char *>(s.c_str());
+        }
+        vec[vecSize++] = nullptr;
+        execv(cfg.bin.c_str(), vec);
+        logger.err("Failed to replace");
+        // std::abort();
+        childExit(ChildErrcode::EXEC);
+        return;
     }
-    vec[vecSize++] = nullptr;
-    execv(cfg.bin.c_str(), vec);
-    logger.err("Failed to replace");
-    std::abort();
-    return;
 }
 
 void Excutable::inTimer()
 {
+    close(timerPipe[0]);
     if(cfg.timeLimit > 0)
     {
         sleep(cfg.timeLimit);

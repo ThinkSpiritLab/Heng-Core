@@ -109,16 +109,16 @@ Result::Result Excutable::getResult()
     logger.log("Try getResult");
     Result::Result res;
     waitChild();
+    logger.log("Child process stoped");
+    timer.stop();
     if(timerPid != -1)
     {
         killTimer();
     }
-    logger.log("Child process stoped");
-    timer.stop();
     res.time.real  = timer.get();
     res.time.usr   = cgp.getTimeUsr();
     res.time.sys   = cgp.getTimeSys();
-    res.memory        = cgp.getMemUsage();
+    res.memory     = cgp.getMemUsage();
     res.returnCode = returnCode;
     res.signal     = sign;
     return res;

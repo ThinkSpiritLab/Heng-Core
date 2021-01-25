@@ -11,8 +11,12 @@ namespace HengCore
 class FileHandler
 {
 public:
-    FILE *fp;
-    int   getfd() const;
+    FileHandler(const std::string fileName,
+                const std::string mod) noexcept;
+    ~FileHandler() noexcept;
+    FILE *             fp;
+    int                getfd() const;
+    const FileHandler &setTo(FILE *lop) const;
 };
 
 const FileHandler
@@ -30,7 +34,8 @@ enum class ChildErrcode
     REPLACESTDIN  = -8,
     REPLACESTDOUT = -9,
     REPLACESTDERR = -10,
-    SETCWD        = -11
+    SETCWD        = -11,
+    EXEC          = -12
 
 };
 class Excutable
