@@ -9,16 +9,20 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <functional>
 #include <string>
 
+#include "config.hpp"
 #include "hc.hpp"
 #include "result.hpp"
+#include "timer.hpp"
 
 namespace HengCore
 {
 Excutable::Excutable(const Config::Config &cfg):
     cfg(cfg),
-    cgp("hengCore/" + std::to_string(getpid())),
+    cgp("hengCore/"
+        + std::to_string(std::hash<Config::Config>()(cfg))),
     logger("hengCore/Excutable/" + std::to_string(getpid()))
 {
     if(cfg.memLimit > 0)

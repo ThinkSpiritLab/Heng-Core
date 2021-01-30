@@ -1,11 +1,13 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
+#include <functional>
 #include <vector>
 
 #include "json.hpp"
 #include <sys/types.h>
 #include <unistd.h>
+
 namespace HengCore
 {
 namespace Config
@@ -33,4 +35,14 @@ namespace Config
     void from_json(const nlohmann::json &j, Config &cfg);
 }  // namespace Config
 }  // namespace HengCore
+namespace std
+{
+template <>
+struct hash<HengCore::Config::Config>
+{
+public:
+    std::size_t operator()(const HengCore::Config::Config
+                             &config) const noexcept;
+};
+}  // namespace std
 #endif
