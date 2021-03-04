@@ -40,15 +40,17 @@ int main(int argc, char *argv[])
 #endif
     if(excutable.exec())
     {
-        std::string result =
-          nlohmann::json(excutable.getResult()).dump(4);
         if(arg.outFd != -1)
         {
+            std::string result =
+              nlohmann::json(excutable.getResult()).dump();
             // dup2(arg.outFd, fileno(stdout));
             write(arg.outFd, result.c_str(), result.size());
         }
         else
         {
+            std::string result =
+              nlohmann::json(excutable.getResult()).dump(4);
             std::cout << result << std::endl;
         }
     }
