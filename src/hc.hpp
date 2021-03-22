@@ -35,7 +35,8 @@ enum class ChildErrcode
     REPLACESTDOUT = -9,
     REPLACESTDERR = -10,
     SETCWD        = -11,
-    EXEC          = -12
+    CLOSEFD       = -12,
+    EXEC          = -13
 
 };
 class Excutable

@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 // #include <thread>
+#include <fcntl.h>
 #include <unistd.h>
 
 #include <cstdio>
@@ -160,6 +161,17 @@ void Excutable::inChild()
     else
     {
         logger.log("Cwd skip");
+    }
+
+    if(cfg.outFd != -1
+       && fcntl(cfg.outFd, F_SETFD, FD_CLOEXEC) == -1)
+    {
+        int err = errno;
+        logger.err(
+          "Failed to Close outFd"
+          " because "
+          + std::string(strerror(err)));
+        childExit(ChildErrcode::SETCWD);
     }
 
     logger.flush();
