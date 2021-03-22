@@ -194,7 +194,7 @@ void Excutable::inTimer()
     close(timerPipe[0]);
     if(cfg.timeLimit > 0)
     {
-        sleep(cfg.timeLimit);
+        sleep(cfg.timeLimit / 1024 / 1024);
         write(timerPipe[1], "\1\0", 2);
         logger.log("Time out");
         killChild();

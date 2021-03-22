@@ -167,7 +167,7 @@ namespace Cgroup
         {
             writeTo(Cgroup::SubSystem::MEMORY,
                     "memory.limit_in_bytes",
-                    lim * 1024 * 1024);
+                    lim);
         }
         catch(std::filesystem::filesystem_error &fse)
         {
