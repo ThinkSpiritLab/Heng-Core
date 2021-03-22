@@ -217,8 +217,9 @@ namespace Cgroup
         try
         {
             return Cgroup::readFrom<long long>(
-              Cgroup::SubSystem::CPUACCT,
-              "cpuacct.usage_user");
+                     Cgroup::SubSystem::CPUACCT,
+                     "cpuacct.usage_user")
+                   / 1000 / 1000;
         }
         catch(std::filesystem::filesystem_error &fse)
         {
@@ -234,8 +235,9 @@ namespace Cgroup
         try
         {
             return Cgroup::readFrom<long long>(
-              Cgroup::SubSystem::CPUACCT,
-              "cpuacct.usage_sys");
+                     Cgroup::SubSystem::CPUACCT,
+                     "cpuacct.usage_sys")
+                   / 1000 / 1000;
         }
         catch(std::filesystem::filesystem_error &fse)
         {
