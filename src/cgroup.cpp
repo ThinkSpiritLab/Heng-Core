@@ -36,6 +36,7 @@ namespace Cgroup
             logger.log("it's regular_file");
             std::ofstream ofs(path);
             ofs << content;
+            ofs.close();
             logger.log("done");
         }
         else
@@ -72,6 +73,7 @@ namespace Cgroup
             logger.log("it's regular_file");
             std::ifstream ifs(path);
             ifs >> t;
+            ifs.close();
             logger.log("done");
             return t;
         }
@@ -149,6 +151,7 @@ namespace Cgroup
                                   std::ios_base::out
                                     | std::ios_base::ate);
                 ofs << pid;
+                ofs.close();
             }
             catch(std::filesystem::filesystem_error &fse)
             {
@@ -292,7 +295,7 @@ namespace Cgroup
                 {
                     if(std::filesystem::is_directory(path))
                     {
-                        std::filesystem::remove_all(path);
+                        std::filesystem::remove(path);
                     }
                 }
                 catch(

@@ -45,7 +45,13 @@ int main(int argc, char *argv[])
             std::string result =
               nlohmann::json(excutable.getResult()).dump();
             // dup2(arg.outFd, fileno(stdout));
-            write(arg.outFd, result.c_str(), result.size());
+            if(write(arg.outFd,
+                     result.c_str(),
+                     result.size())
+               != ssize_t(result.size()))
+            {
+                return 1;
+            }
         }
         else
         {

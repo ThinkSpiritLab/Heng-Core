@@ -203,13 +203,24 @@ void Excutable::inChild()
 
 void Excutable::inTimer()
 {
-    close(timerPipe[0]);
+    // close(timerPipe[0]);
     if(cfg.timeLimit > 0)
     {
-        sleep(cfg.timeLimit / 1024 / 1024);
-        write(timerPipe[1], "\1\0", 2);
-        logger.log("Time out");
-        killChild();
+        sleep(cfg.timeLimit / 1000);
+        // write(timerPipe[1], "\1\0", 2);
+        // logger.log(
+        //   "Time out, timer start kill any child
+        //   process");
+        // killChild();
+        logger.log(
+          "Time out, timer will kill main child process");
+        if(kill(childPid, SIGKILL) != 0)
+        {
+            logger.log(
+              "Time out, but timer fail to kill main child "
+              "process, start kill any child process");
+            killChild();
+        }
     }
     childExit(ChildErrcode::TIMERGOOD);
 }
