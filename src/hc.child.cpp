@@ -83,7 +83,7 @@ void Excutable::childExit(ChildErrcode returnCode)
 
 void Excutable::inChild()
 {
-    logger.log("In child process , pid "
+    logger.log("In child process, pid "
                + std::to_string(getpid()));
     gid_t curGid = getgid();
     uid_t curUid = getuid();

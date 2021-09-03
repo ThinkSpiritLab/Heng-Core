@@ -61,7 +61,8 @@ bool Excutable::exec()
         if(childPid == 0)
         {
             // It's child process
-            cgp.attach(childPid);
+            // https://github.com/torvalds/linux/blob/a9c9a6f741cdaa2fa9ba24a790db8d07295761e3/kernel/cgroup/cgroup.c#L2816
+            cgp.attach(0);
             inChild();
             // should not continue;
             return false;
