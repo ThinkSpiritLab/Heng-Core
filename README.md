@@ -36,3 +36,5 @@ struct Result
         int signal;
     };
 ```
+
+为了避免误操作，忽略了程序终止信号（SIGINT）。想要提前终止任务，请手动 kill 主子进程。

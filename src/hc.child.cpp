@@ -147,15 +147,14 @@ void Excutable::inChild()
         if(chdir(cfg.cwd.c_str()) == -1)
         {
             int err = errno;
-            logger.err(
-              "Failed to Set Cwd"
-              " because "
-              + std::string(strerror(err)));
+            logger.err("Failed to Set Cwd to " + cfg.cwd
+                       + " because "
+                       + std::string(strerror(err)));
             childExit(ChildErrcode::SETCWD);
         }
         else
         {
-            logger.log("Cwd Set");
+            logger.log("Cwd Set To " + cfg.cwd);
         }
     }
     else

@@ -3,6 +3,7 @@
 
 #include "util/argvPraser.hpp"
 
+#include <csignal>
 #include <iostream>
 
 #include "json.hpp"
@@ -10,6 +11,7 @@ using Cfg       = HengCore::Config::Config;
 using Excutable = HengCore::Excutable;
 int main(int argc, char *argv[])
 {
+    std::signal(SIGINT, SIG_IGN);
     auto arg = ArgvPraser::OptionPraser<Cfg>()
                  .add("tl", &Cfg::timeLimit)
                  .add("t", &Cfg::timeLimit)
