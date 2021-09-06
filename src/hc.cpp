@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <functional>
+#include <random>
 #include <string>
 
 #include "config.hpp"
@@ -19,10 +20,14 @@
 
 namespace HengCore
 {
+std::random_device rd;
+std::mt19937_64    rnd64(rd());
 Excutable::Excutable(const Config::Config &cfg):
     cfg(cfg),
     cgp("hengCore/"
-        + std::to_string(std::hash<Config::Config>()(cfg))),
+        + std::to_string(std::hash<Config::Config>()(cfg))
+        + std::to_string(
+          static_cast<unsigned long long>(rnd64()))),
     logger("hengCore/Excutable/" + std::to_string(getpid()))
 {
     if(cfg.memLimit > 0)
@@ -178,9 +183,9 @@ bool Excutable::waitChild()
     //     }
     //     // sleep(1);
     // } while(vec.size() != 0);
-    logger.log(std::string(
-      "main chlid process dead, kill any other "
-      "chlid process"));
+    logger.log(
+      std::string("main chlid process dead, kill any other "
+                  "chlid process"));
     killChild();
     return true;
     // return kill(childPid, SIGKILL) == -1;
@@ -203,7 +208,7 @@ bool Excutable::killChild()
             logger.log("KillChild, PID "
                        + std::to_string(pid) + " Stoped");
         }
-        // sleep(1);
+        usleep(10000);
     } while(vec.size() != 0);
     return true;
     // return kill(childPid, SIGKILL) == -1;
