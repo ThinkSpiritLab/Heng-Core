@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <functional>
+#include <random>
 #include <string>
 
 #include "config.hpp"
@@ -19,19 +20,31 @@
 
 namespace HengCore
 {
+std::random_device rd;
+std::mt19937_64    rnd64(rd());
 Excutable::Excutable(const Config::Config &cfg):
     cfg(cfg),
     cgp("hengCore/"
-        + std::to_string(std::hash<Config::Config>()(cfg))),
+        + std::to_string(std::hash<Config::Config>()(cfg))
+        + std::to_string(
+          static_cast<unsigned long long>(rnd64()))),
     logger("hengCore/Excutable/" + std::to_string(getpid()))
 {
     if(cfg.memLimit > 0)
     {
-        cgp.setMemLimit(cfg.memLimit);
+        if(!cgp.setMemLimit(cfg.memLimit))
+        {
+            throw std::runtime_error(
+              "fail to set memory limit");
+        }
     }
     if(cfg.maxPid > 0)
     {
-        cgp.setPidLimit(cfg.maxPid);
+        if(!cgp.setPidLimit(cfg.maxPid))
+        {
+            throw std::runtime_error(
+              "fail to set pid limit");
+        }
     }
 }
 
@@ -53,6 +66,8 @@ bool Excutable::exec()
         if(childPid == 0)
         {
             // It's child process
+            // https://github.com/torvalds/linux/blob/a9c9a6f741cdaa2fa9ba24a790db8d07295761e3/kernel/cgroup/cgroup.c#L2816
+            cgp.attach(0);
             inChild();
             // should not continue;
             return false;
@@ -62,20 +77,19 @@ bool Excutable::exec()
             logger.log("ChildPid is "
                        + std::to_string(childPid));
             // It's parent process
-            cgp.attach(childPid);
             if(cfg.timeLimit > 0)
             {
-                if(pipe(timerPipe) != 0)
-                {
-                    int errcode = errno;
-                    logger.err(
-                      "Failed to create timer pipe "
-                      "because "
-                      + std::string(strerror(errcode)));
-                    killChild();
-                    return false;
-                }
-                close(timerPipe[1]);
+                // if(pipe(timerPipe) != 0)
+                // {
+                //     int errcode = errno;
+                //     logger.err(
+                //       "Failed to create timer pipe "
+                //       "because "
+                //       + std::string(strerror(errcode)));
+                //     killChild();
+                //     return false;
+                // }
+                // close(timerPipe[1]);
                 timerPid = fork();
                 if(timerPid < 0)
                 {
@@ -92,7 +106,7 @@ bool Excutable::exec()
                     if(timerPid == 0)
                     {
                         // It's timer process
-                        close(timerPipe[0]);
+                        // close(timerPipe[0]);
                         inTimer();
                     }
                     else
@@ -113,7 +127,7 @@ Result::Result Excutable::getResult()
     logger.log("Try getResult");
     Result::Result res;
     waitChild();
-    logger.log("Child process stoped");
+    logger.log("After waitChild, all child process stoped");
     timer.stop();
     if(timerPid != -1)
     {
@@ -143,32 +157,36 @@ bool Excutable::waitChild()
             sign = WTERMSIG(status);
         }
     }
-    do
-    {
-        vec = cgp.getPidInGroup();
-        logger.log("WaitChild, Found "
-                   + std::to_string(vec.size()));
-        for(auto pid: vec)
-        {
-            if(pid != childPid)
-            {
-                int res;
-                logger.log("WaitChild, PID "
-                           + std::to_string(pid));
-                res = waitpid(pid, &status, 0);
-                if(res == -1)
-                {
-                    logger.err("WaitChild,GetError "
-                               + std::to_string(errno));
-                    kill(pid, SIGKILL);
-                }
-                logger.log("WaitChild, PID "
-                           + std::to_string(pid)
-                           + " Stoped");
-            }
-        }
-        // sleep(1);
-    } while(vec.size() != 0);
+    // do
+    // {
+    //     vec = cgp.getPidInGroup();
+    //     logger.log("WaitChild, Found "
+    //                + std::to_string(vec.size()));
+    //     for(auto pid: vec)
+    //     {
+    //         if(pid != childPid)
+    //         {
+    //             int res;
+    //             logger.log("WaitChild, PID "
+    //                        + std::to_string(pid));
+    //             res = waitpid(pid, &status, 0);
+    //             if(res == -1)
+    //             {
+    //                 logger.err("WaitChild,GetError "
+    //                            + std::to_string(errno));
+    //                 kill(pid, SIGKILL);
+    //             }
+    //             logger.log("WaitChild, PID "
+    //                        + std::to_string(pid)
+    //                        + " Stoped");
+    //         }
+    //     }
+    //     // sleep(1);
+    // } while(vec.size() != 0);
+    logger.log(
+      std::string("main chlid process dead, kill any other "
+                  "chlid process"));
+    killChild();
     return true;
     // return kill(childPid, SIGKILL) == -1;
 }
@@ -190,7 +208,7 @@ bool Excutable::killChild()
             logger.log("KillChild, PID "
                        + std::to_string(pid) + " Stoped");
         }
-        // sleep(1);
+        usleep(10000);
     } while(vec.size() != 0);
     return true;
     // return kill(childPid, SIGKILL) == -1;

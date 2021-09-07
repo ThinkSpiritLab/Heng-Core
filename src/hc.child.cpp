@@ -83,7 +83,7 @@ void Excutable::childExit(ChildErrcode returnCode)
 
 void Excutable::inChild()
 {
-    logger.log("In child process , pid "
+    logger.log("In child process, pid "
                + std::to_string(getpid()));
     gid_t curGid = getgid();
     uid_t curUid = getuid();
@@ -147,15 +147,14 @@ void Excutable::inChild()
         if(chdir(cfg.cwd.c_str()) == -1)
         {
             int err = errno;
-            logger.err(
-              "Failed to Set Cwd"
-              " because "
-              + std::string(strerror(err)));
+            logger.err("Failed to Set Cwd to " + cfg.cwd
+                       + " because "
+                       + std::string(strerror(err)));
             childExit(ChildErrcode::SETCWD);
         }
         else
         {
-            logger.log("Cwd Set");
+            logger.log("Cwd Set To " + cfg.cwd);
         }
     }
     else
@@ -203,13 +202,25 @@ void Excutable::inChild()
 
 void Excutable::inTimer()
 {
-    close(timerPipe[0]);
+    // close(timerPipe[0]);
     if(cfg.timeLimit > 0)
     {
-        sleep(cfg.timeLimit / 1024 / 1024);
-        write(timerPipe[1], "\1\0", 2);
-        logger.log("Time out");
-        killChild();
+        // sleep((cfg.timeLimit - 1) / 1000 + 1);
+        usleep(cfg.timeLimit * 1000);
+        // write(timerPipe[1], "\1\0", 2);
+        // logger.log(
+        //   "Time out, timer start kill any child
+        //   process");
+        // killChild();
+        logger.log(
+          "Time out, timer will kill main child process");
+        if(kill(childPid, SIGKILL) != 0)
+        {
+            logger.log(
+              "Time out, but timer fail to kill main child "
+              "process, start kill any child process");
+            killChild();
+        }
     }
     childExit(ChildErrcode::TIMERGOOD);
 }
