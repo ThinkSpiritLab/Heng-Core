@@ -46,6 +46,14 @@ Excutable::Excutable(const Config::Config &cfg):
               "fail to set pid limit");
         }
     }
+    if(cfg.maxCpu > 0)
+    {
+        if(!cgp.setCpuLimit(cfg.maxCpu))
+        {
+            throw std::runtime_error(
+              "fail to set cpu limit");
+        }
+    }
 }
 
 bool Excutable::exec()

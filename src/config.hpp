@@ -19,6 +19,7 @@ namespace Config
         uid_t       uid       = 0;
         gid_t       gid       = 0;
         long long   maxPid    = -1;
+        long long   maxCpu    = -1;
         bool        isRoot    = getuid() == 0;
         std::string stdin     = Config::defaultStdin;
         std::string stdout    = Config::defaultStdout;
