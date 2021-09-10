@@ -1,10 +1,10 @@
 cgdel(){
-    path=$1
-    ls $path | while read line
+    cgpath=$1
+    ls $cgpath | while read line
     do
 	    rmdir $line
     done
-    rmdir $path
+    rmdir $cgpath
 }
 
 cgdel /sys/fs/cgroup/cpu/hengCore/
