@@ -23,7 +23,7 @@ namespace Cgroup
         const pid_t                 masterPid;
         enum class SubSystem
         {
-            CPUSET  = 0,
+            CPU  = 0,
             CPUACCT = 1,
             MEMORY  = 2,
             PIDS    = 3
@@ -51,6 +51,7 @@ namespace Cgroup
           CgroupFsDirs;
 
         Cgroup(const std::string &name);
+        bool      setCpuLimit(long long lim) const;
         bool      setMemLimit(long long lim) const;
         bool      setPidLimit(long long lim) const;
         long long getMemUsage() const;

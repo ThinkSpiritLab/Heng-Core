@@ -15,7 +15,7 @@ namespace Cgroup
     const std::filesystem::path Cgroup::CgroupFsBase =
       "/sys/fs/cgroup/";
     const std::vector<std::filesystem::path>
-      Cgroup::CgroupFsDirs = { "cpuset/",
+      Cgroup::CgroupFsDirs = { "cpu/",
                                "cpuacct/",
                                "memory/",
                                "pids/" };
@@ -92,7 +92,7 @@ namespace Cgroup
     {
         switch(ss)
         {
-            case Cgroup::SubSystem::CPUSET:
+            case Cgroup::SubSystem::CPU:
                 return Cgroup::CgroupFsDirs[0];
                 break;
             case Cgroup::SubSystem::CPUACCT:
@@ -160,6 +160,30 @@ namespace Cgroup
             }
         }
         logger.log("attached");
+        return true;
+    }
+
+    bool Cgroup::setCpuLimit(long long lim) const
+    {
+        logger.log("setCpuLimit to " + std::to_string(lim));
+        try
+        {
+            // 10ms, cfs_period_us --> when user program
+            // forks, minimum usr time limit accuracy, not
+            // record accuracy
+            static const int cfs_period_us = 10'000;
+            writeTo(Cgroup::SubSystem::CPU,
+                    "cpu.cfs_period_us",
+                    cfs_period_us);
+            writeTo(Cgroup::SubSystem::CPU,
+                    "cpu.cfs_quota_us",
+                    lim * cfs_period_us);
+        }
+        catch(std::filesystem::filesystem_error &fse)
+        {
+            logger.err(fse.what());
+            return false;
+        }
         return true;
     }
 
