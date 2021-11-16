@@ -1,17 +1,16 @@
+#include <iostream>
+
 #include "config.hpp"
 #include "hc.hpp"
 
+#include "json.hpp"
 #include "util/argvPraser.hpp"
 
-#include <csignal>
-#include <iostream>
-
-#include "json.hpp"
 using Cfg       = HengCore::Config::Config;
 using Excutable = HengCore::Excutable;
+
 int main(int argc, char *argv[])
 {
-    std::signal(SIGINT, SIG_IGN);
     auto arg = ArgvPraser::OptionPraser<Cfg>()
                  .add("tl", &Cfg::timeLimit)
                  .add("t", &Cfg::timeLimit)
@@ -38,6 +37,15 @@ int main(int argc, char *argv[])
                  .add("bin", &Cfg::bin, true)
                  .prase(argc, argv);
     Excutable excutable(arg);
+    if(getuid() || getgid())
+    {
+#ifdef DEBUG
+        std::cerr
+          << "I need root permission to operate cgroup!"
+          << std::endl;
+#endif
+        return -1;
+    }
 #ifdef DEBUG
     std::cout << nlohmann::json(arg).dump(4) << std::endl;
 #endif

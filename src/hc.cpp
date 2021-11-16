@@ -1,17 +1,14 @@
-#include <exception>
-#include <vector>
-
-#include <sys/types.h>
-#include <sys/wait.h>
-// #include <thread>
-#include <unistd.h>
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <exception>
 #include <functional>
 #include <random>
 #include <string>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <vector>
 
 #include "config.hpp"
 #include "hc.hpp"
@@ -60,6 +57,7 @@ bool Excutable::exec()
 {
     sign       = -1;
     returnCode = -1;
+    // real time collector start
     timer.begin();
     childPid = fork();
     if(childPid < 0)
@@ -76,8 +74,9 @@ bool Excutable::exec()
             // It's child process
             // https://github.com/torvalds/linux/blob/a9c9a6f741cdaa2fa9ba24a790db8d07295761e3/kernel/cgroup/cgroup.c#L2816
             cgp.attach(0);
+            // inChild -> exit()
             inChild();
-            // should not continue;
+            // unreachable code
             return false;
         }
         else
@@ -87,17 +86,6 @@ bool Excutable::exec()
             // It's parent process
             if(cfg.timeLimit > 0)
             {
-                // if(pipe(timerPipe) != 0)
-                // {
-                //     int errcode = errno;
-                //     logger.err(
-                //       "Failed to create timer pipe "
-                //       "because "
-                //       + std::string(strerror(errcode)));
-                //     killChild();
-                //     return false;
-                // }
-                // close(timerPipe[1]);
                 timerPid = fork();
                 if(timerPid < 0)
                 {
@@ -114,11 +102,13 @@ bool Excutable::exec()
                     if(timerPid == 0)
                     {
                         // It's timer process
-                        // close(timerPipe[0]);
+                        // inTimer -> exit()
                         inTimer();
+                        // unreachable code
                     }
                     else
                     {
+                        // It's parent process
                         logger.log(
                           "timerPid is "
                           + std::to_string(timerPid));
@@ -137,10 +127,7 @@ Result::Result Excutable::getResult()
     waitChild();
     logger.log("After waitChild, all child process stoped");
     timer.stop();
-    if(timerPid != -1)
-    {
-        killTimer();
-    }
+    killTimer();
     res.time.real  = timer.get();
     res.time.usr   = cgp.getTimeUsr();
     res.time.sys   = cgp.getTimeSys();
@@ -151,9 +138,8 @@ Result::Result Excutable::getResult()
 }
 bool Excutable::waitChild()
 {
-    logger.log("WaitChild Child process");
-    int                status;
-    std::vector<pid_t> vec;
+    logger.log("Wait child process");
+    int status;
     if(waitpid(childPid, &status, 0) != -1)
     {
         if(WIFEXITED(status))
@@ -165,42 +151,15 @@ bool Excutable::waitChild()
             sign = WTERMSIG(status);
         }
     }
-    // do
-    // {
-    //     vec = cgp.getPidInGroup();
-    //     logger.log("WaitChild, Found "
-    //                + std::to_string(vec.size()));
-    //     for(auto pid: vec)
-    //     {
-    //         if(pid != childPid)
-    //         {
-    //             int res;
-    //             logger.log("WaitChild, PID "
-    //                        + std::to_string(pid));
-    //             res = waitpid(pid, &status, 0);
-    //             if(res == -1)
-    //             {
-    //                 logger.err("WaitChild,GetError "
-    //                            + std::to_string(errno));
-    //                 kill(pid, SIGKILL);
-    //             }
-    //             logger.log("WaitChild, PID "
-    //                        + std::to_string(pid)
-    //                        + " Stoped");
-    //         }
-    //     }
-    //     // sleep(1);
-    // } while(vec.size() != 0);
     logger.log(
       std::string("main chlid process dead, kill any other "
                   "chlid process"));
     killChild();
     return true;
-    // return kill(childPid, SIGKILL) == -1;
 }
 bool Excutable::killChild()
 {
-    logger.log("KillChild Child process");
+    logger.log("Kill child process");
     std::vector<pid_t> vec;
     do
     {
@@ -211,21 +170,20 @@ bool Excutable::killChild()
         {
             logger.log("KillChild, PID "
                        + std::to_string(pid));
-            // waitpid(pid, &status, 0);
             kill(pid, SIGKILL);
             logger.log("KillChild, PID "
-                       + std::to_string(pid) + " Stoped");
+                       + std::to_string(pid)
+                       + " Kill Signal Send");
         }
-        usleep(10000);
+        usleep(10000);  // 10ms
     } while(vec.size() != 0);
     return true;
-    // return kill(childPid, SIGKILL) == -1;
 }
 bool Excutable::killTimer()
 {
     if(timerPid != -1)
     {
-        return kill(timerPid, SIGKILL) == -1;
+        return kill(timerPid, SIGKILL) != -1;
     }
     else
     {

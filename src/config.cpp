@@ -1,6 +1,7 @@
+#include "config.hpp"
+
 #include "json.hpp"
 
-#include "config.hpp"
 namespace HengCore
 {
 namespace Config
@@ -53,6 +54,7 @@ namespace std
 std::size_t hash<HengCore::Config::Config>::operator()(
   const HengCore::Config::Config &config) const noexcept
 {
-    return std::hash<std::string>()(nlohmann::json(config).dump());
+    return std::hash<std::string>()(
+      nlohmann::json(config).dump());
 }
 }  // namespace std

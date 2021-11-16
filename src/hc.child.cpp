@@ -1,16 +1,13 @@
-#include <exception>
-#include <vector>
-
-#include <sys/types.h>
-#include <sys/wait.h>
-// #include <thread>
-#include <fcntl.h>
-#include <unistd.h>
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <exception>
+#include <fcntl.h>
 #include <string>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <vector>
 
 #include "hc.child.hpp"
 #include "hc.hpp"
@@ -194,7 +191,6 @@ void Excutable::inChild()
         vec[vecSize++] = nullptr;
         execv(cfg.bin.c_str(), vec);
         logger.err("Failed to replace");
-        // std::abort();
         childExit(ChildErrcode::EXEC);
         return;
     }
@@ -202,16 +198,10 @@ void Excutable::inChild()
 
 void Excutable::inTimer()
 {
-    // close(timerPipe[0]);
     if(cfg.timeLimit > 0)
     {
         // sleep((cfg.timeLimit - 1) / 1000 + 1);
         usleep(cfg.timeLimit * 1000);
-        // write(timerPipe[1], "\1\0", 2);
-        // logger.log(
-        //   "Time out, timer start kill any child
-        //   process");
-        // killChild();
         logger.log(
           "Time out, timer will kill main child process");
         if(kill(childPid, SIGKILL) != 0)

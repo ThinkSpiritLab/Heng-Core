@@ -2,11 +2,11 @@
 #define CONFIG_HPP
 
 #include <functional>
+#include <sys/types.h>
+#include <unistd.h>
 #include <vector>
 
 #include "json.hpp"
-#include <sys/types.h>
-#include <unistd.h>
 
 namespace HengCore
 {
