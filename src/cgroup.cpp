@@ -196,9 +196,6 @@ namespace Cgroup
                     "memory.limit_in_bytes",
                     lim);
             writeTo(Cgroup::SubSystem::MEMORY,
-                    "memory.memsw.limit_in_bytes",
-                    lim);
-            writeTo(Cgroup::SubSystem::MEMORY,
                     "memory.swappiness",
                     0);
         }
@@ -234,7 +231,7 @@ namespace Cgroup
         {
             return Cgroup::readFrom<long long>(
               Cgroup::SubSystem::MEMORY,
-              "memory.memsw.max_usage_in_bytes");
+              "memory.max_usage_in_bytes");
         }
         catch(std::filesystem::filesystem_error &fse)
         {
