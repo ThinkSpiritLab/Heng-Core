@@ -2,3 +2,4 @@
 hc
 *.o
 /test_build
+.vscode
