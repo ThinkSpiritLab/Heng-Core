@@ -198,6 +198,9 @@ namespace Cgroup
             writeTo(Cgroup::SubSystem::MEMORY,
                     "memory.memsw.limit_in_bytes",
                     lim);
+            writeTo(Cgroup::SubSystem::MEMORY,
+                    "memory.swappiness",
+                    0);
         }
         catch(std::filesystem::filesystem_error &fse)
         {
