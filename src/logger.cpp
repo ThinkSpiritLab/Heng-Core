@@ -3,12 +3,10 @@
 #include <sstream>
 #include <string>
 #include <unistd.h>
-// #include <thread>
-// #include <source_location>
-
-#include "colourStream.h"
 
 #include "logger.hpp"
+
+#include "colourStream.h"
 
 namespace HengCore
 {
@@ -44,8 +42,8 @@ namespace Logger
         }
     }
 
-    const Logger &Logger::log([
-      [maybe_unused]] std::string msg) const
+    const Logger &
+    Logger::log([[maybe_unused]] std::string msg) const
     {
 #ifdef LOG_LOG
         std::ostringstream ss;
@@ -61,8 +59,8 @@ namespace Logger
 #endif
         return *this;
     }
-    const Logger &Logger::out([
-      [maybe_unused]] std::string msg) const
+    const Logger &
+    Logger::out([[maybe_unused]] std::string msg) const
     {
 #ifdef LOG_OUT
         std::ostringstream ss;
@@ -77,8 +75,8 @@ namespace Logger
 #endif
         return *this;
     }
-    const Logger &Logger::err([
-      [maybe_unused]] std::string msg) const
+    const Logger &
+    Logger::err([[maybe_unused]] std::string msg) const
     {
 #ifdef LOG_ERR
         std::ostringstream ss;

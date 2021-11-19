@@ -1,5 +1,7 @@
-#include "timer.hpp"
 #include <chrono>
+
+#include "timer.hpp"
+
 namespace Timer
 {
 

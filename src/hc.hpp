@@ -5,6 +5,7 @@
 #include "config.hpp"
 #include "result.hpp"
 #include "timer.hpp"
+
 namespace HengCore
 {
 
@@ -50,7 +51,6 @@ private:
     int            sign;
     pid_t          childPid = -1;
     pid_t          timerPid = -1;
-    // int            timerPipe[2];
     void           inChild();
     void           inTimer();
     void           childExit(ChildErrcode returnCode);

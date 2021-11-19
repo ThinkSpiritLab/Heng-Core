@@ -7,11 +7,11 @@
 
 #include "cgroup.hpp"
 #include "logger.hpp"
+
 namespace HengCore
 {
 namespace Cgroup
 {
-    const mode_t                Cgroup::CgroupFsMode = 0755;
     const std::filesystem::path Cgroup::CgroupFsBase =
       "/sys/fs/cgroup/";
     const std::vector<std::filesystem::path>
@@ -195,6 +195,9 @@ namespace Cgroup
             writeTo(Cgroup::SubSystem::MEMORY,
                     "memory.limit_in_bytes",
                     lim);
+            writeTo(Cgroup::SubSystem::MEMORY,
+                    "memory.swappiness",
+                    0);
         }
         catch(std::filesystem::filesystem_error &fse)
         {
@@ -233,8 +236,7 @@ namespace Cgroup
         catch(std::filesystem::filesystem_error &fse)
         {
             logger.err(fse.what());
-            // return false;
-            return -1;
+            return __LONG_LONG_MAX__;
         }
     }
 
@@ -251,8 +253,7 @@ namespace Cgroup
         catch(std::filesystem::filesystem_error &fse)
         {
             logger.err(fse.what());
-            // return false;
-            return -1;
+            return __LONG_LONG_MAX__;
         }
     }
 
@@ -269,8 +270,7 @@ namespace Cgroup
         catch(std::filesystem::filesystem_error &fse)
         {
             logger.err(fse.what());
-            // return false;
-            return -1;
+            return __LONG_LONG_MAX__;
         }
     }
 

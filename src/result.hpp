@@ -1,6 +1,7 @@
 #ifndef RESULT_HPP
 #define RESULT_HPP
 #include "json.hpp"
+
 namespace HengCore
 {
 namespace Result

@@ -17,13 +17,12 @@ namespace Cgroup
     class Cgroup
     {
     private:
-        // const std::string     name;
         const std::filesystem::path CGroupPath;
         Logger::Logger              logger;
         const pid_t                 masterPid;
         enum class SubSystem
         {
-            CPU  = 0,
+            CPU     = 0,
             CPUACCT = 1,
             MEMORY  = 2,
             PIDS    = 3
@@ -45,7 +44,6 @@ namespace Cgroup
                    const std::filesystem::path &file) const;
 
     public:
-        static const mode_t                CgroupFsMode;
         static const std::filesystem::path CgroupFsBase;
         static const std::vector<std::filesystem::path>
           CgroupFsDirs;
