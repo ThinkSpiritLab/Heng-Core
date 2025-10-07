@@ -128,7 +128,8 @@ void Excutable::inChild()
     {
         logger.log("Skip set uid");
     }
-    if(cfg.stdin == cfg.stdout || cfg.stdin == cfg.stderr)
+    if(cfg.stdinPath == cfg.stdoutPath
+       || cfg.stdinPath == cfg.stderrPath)
     {
         logger.err(
           "stdin can't equal to stdout nor stderr");
@@ -173,11 +174,11 @@ void Excutable::inChild()
     logger.flush();
 
     {
-        FileHandler in(cfg.stdin, "r");
+        FileHandler in(cfg.stdinPath, "r");
         in.setTo(stdin);
-        FileHandler out(cfg.stdout, "w");
+        FileHandler out(cfg.stdoutPath, "w");
         out.setTo(stdout);
-        FileHandler err(cfg.stderr, "w");
+        FileHandler err(cfg.stderrPath, "w");
         err.setTo(stderr);
 
         char *vec[cfg.args.size() + 2];

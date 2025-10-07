@@ -14,17 +14,17 @@ namespace Config
 {
     struct Config
     {
-        long long   timeLimit = -1;
-        long long   memLimit  = -1;
-        uid_t       uid       = 0;
-        gid_t       gid       = 0;
-        long long   maxPid    = -1;
-        long long   maxCpu    = -1;
-        bool        isRoot    = getuid() == 0;
-        std::string stdin     = Config::defaultStdin;
-        std::string stdout    = Config::defaultStdout;
-        std::string stderr    = Config::defaultStderr;
-        int         outFd     = -1;
+        long long   timeLimit  = -1;
+        long long   memLimit   = -1;
+        uid_t       uid        = 0;
+        gid_t       gid        = 0;
+        long long   maxPid     = -1;
+        long long   maxCpu     = -1;
+        bool        isRoot     = getuid() == 0;
+        std::string stdinPath  = Config::defaultStdin;
+        std::string stdoutPath = Config::defaultStdout;
+        std::string stderrPath = Config::defaultStderr;
+        int         outFd      = -1;
         std::string cwd;
         std::vector<std::string> args;
         std::string              bin;

@@ -20,9 +20,9 @@ namespace Config
             { "maxPid", cfg.maxPid },
             { "maxCpu", cfg.maxCpu },
             { "isRoot", cfg.isRoot },
-            { "stdin", cfg.stdin },
-            { "stdout", cfg.stdout },
-            { "stderr", cfg.stderr },
+            { "stdin", cfg.stdinPath },
+            { "stdout", cfg.stdoutPath },
+            { "stderr", cfg.stderrPath },
             { "fd", cfg.outFd },
             { "cwd", cfg.cwd },
             { "args", cfg.args },
@@ -38,9 +38,9 @@ namespace Config
         j.at("maxPid").get_to(cfg.maxPid);
         j.at("maxCpu").get_to(cfg.maxCpu);
         j.at("isRoot").get_to(cfg.isRoot);
-        j.at("stdin").get_to(cfg.stdin);
-        j.at("stdout").get_to(cfg.stdout);
-        j.at("stderr").get_to(cfg.stderr);
+        j.at("stdin").get_to(cfg.stdinPath);
+        j.at("stdout").get_to(cfg.stdoutPath);
+        j.at("stderr").get_to(cfg.stderrPath);
         j.at("fd").get_to(cfg.outFd);
         j.at("cwd").get_to(cfg.cwd);
         j.at("args").get_to(cfg.args);
