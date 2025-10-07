@@ -194,18 +194,26 @@ namespace Cgroup
 
     long long Cgroup::getTime(const std::string &type) const
     {
+        std::filesystem::path path = CgroupFsBase;
+        path /= CGroupPath;
+        path /= "cpu.stat";
+        if(!std::filesystem::is_regular_file(path))
+        {
+            logger.err("cpu.stat not exist");
+            return __LONG_LONG_MAX__;
+        }
         try
         {
-            auto time =
-              readFrom<std::stringstream>("cpu.stat");
-            std::string key, value;
-            while(time >> key >> value)
+            std::ifstream ifs(path);
+            std::string   key, value;
+            while(ifs >> key >> value)
             {
                 if(key == type)
                 {
                     return std::stoll(value) / 1000;
                 }
             }
+            logger.err(type + " not exist");
         }
         catch(std::filesystem::filesystem_error &fse)
         {
