@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <filesystem>
 #include <fstream>
+#include <map>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -14,18 +15,11 @@ namespace Cgroup
 {
     const std::filesystem::path Cgroup::CgroupFsBase =
       "/sys/fs/cgroup/";
-    const std::vector<std::filesystem::path>
-      Cgroup::CgroupFsDirs = { "cpu/",
-                               "cpuacct/",
-                               "memory/",
-                               "pids/" };
 
-    void Cgroup::writeTo(Cgroup::SubSystem subSystem,
-                         const std::filesystem::path &file,
+    void Cgroup::writeTo(const std::filesystem::path &file,
                          std::string content) const
     {
         std::filesystem::path path = CgroupFsBase;
-        path /= Cgroup::getSubSystemDir(subSystem);
         path /= CGroupPath;
         path /= file;
         std::error_code ec;
@@ -49,20 +43,17 @@ namespace Cgroup
         }
     }
 
-    void Cgroup::writeTo(Cgroup::SubSystem subSystem,
-                         const std::filesystem::path &file,
+    void Cgroup::writeTo(const std::filesystem::path &file,
                          long long content) const
     {
-        writeTo(subSystem, file, std::to_string(content));
+        writeTo(file, std::to_string(content));
     }
 
     template <typename T>
     T Cgroup::readFrom(
-      Cgroup::SubSystem            subSystem,
       const std::filesystem::path &file) const
     {
         std::filesystem::path path = Cgroup::CgroupFsBase;
-        path /= Cgroup::getSubSystemDir(subSystem);
         path /= CGroupPath;
         path /= file;
         std::error_code ec;
@@ -87,50 +78,24 @@ namespace Cgroup
         }
     }
 
-    const std::filesystem::path &
-    Cgroup::getSubSystemDir(Cgroup::SubSystem ss)
-    {
-        switch(ss)
-        {
-            case Cgroup::SubSystem::CPU:
-                return Cgroup::CgroupFsDirs[0];
-                break;
-            case Cgroup::SubSystem::CPUACCT:
-                return Cgroup::CgroupFsDirs[1];
-                break;
-            case Cgroup::SubSystem::MEMORY:
-                return Cgroup::CgroupFsDirs[2];
-                break;
-            case Cgroup::SubSystem::PIDS:
-                return Cgroup::CgroupFsDirs[3];
-                break;
-            default:
-                throw std::invalid_argument(
-                  "UnKnow SubSystem");
-                break;
-        }
-    }
-
     Cgroup::Cgroup(const std::string &name):
         CGroupPath(name),
         logger(name + "/cgroup"),
         masterPid(getpid())
     {
         logger.log("created cgroup " + CGroupPath.string());
-        for(const auto &subDir: CgroupFsDirs)
+        std::filesystem::path path = CgroupFsBase;
+        path /= CGroupPath;
+        logger.log("mkdir " + path.string());
+        try
         {
-            std::filesystem::path path = CgroupFsBase;
-            path /= subDir;
-            path /= CGroupPath;
-            logger.log("mkdir " + path.string());
-            try
-            {
-                std::filesystem::create_directories(path);
-            }
-            catch(std::filesystem::filesystem_error &fse)
-            {
-                logger.err(fse.what());
-            }
+            std::filesystem::create_directories(path);
+            writeTo(path / "cgroup.subtree_control",
+                    "+cpu +memory +pids");
+        }
+        catch(std::filesystem::filesystem_error &fse)
+        {
+            logger.err(fse.what());
         }
         logger.log("Done");
     }
@@ -138,26 +103,22 @@ namespace Cgroup
     bool Cgroup::attach(pid_t pid) const
     {
         logger.log("attach pid" + std::to_string(pid));
-        for(const auto &subDir: CgroupFsDirs)
+        std::filesystem::path path = CgroupFsBase;
+        path /= CGroupPath;
+        path /= "cgroup.procs";
+        logger.log("open " + path.string());
+        try
         {
-            std::filesystem::path path = CgroupFsBase;
-            path /= subDir;
-            path /= CGroupPath;
-            path /= "tasks";
-            logger.log("open " + path.string());
-            try
-            {
-                std::ofstream ofs(path,
-                                  std::ios_base::out
-                                    | std::ios_base::ate);
-                ofs << pid;
-                ofs.close();
-            }
-            catch(std::filesystem::filesystem_error &fse)
-            {
-                logger.err(fse.what());
-                return false;
-            }
+            std::ofstream ofs(path,
+                              std::ios_base::out
+                                | std::ios_base::ate);
+            ofs << pid;
+            ofs.close();
+        }
+        catch(std::filesystem::filesystem_error &fse)
+        {
+            logger.err(fse.what());
+            return false;
         }
         logger.log("attached");
         return true;
@@ -172,12 +133,10 @@ namespace Cgroup
             // forks, minimum usr time limit accuracy, not
             // record accuracy
             static const int cfs_period_us = 10'000;
-            writeTo(Cgroup::SubSystem::CPU,
-                    "cpu.cfs_period_us",
-                    cfs_period_us);
-            writeTo(Cgroup::SubSystem::CPU,
-                    "cpu.cfs_quota_us",
-                    lim * cfs_period_us);
+            writeTo("cpu.max",
+                    std::to_string(cfs_period_us * lim)
+                      + " "
+                      + std::to_string(cfs_period_us));
         }
         catch(std::filesystem::filesystem_error &fse)
         {
@@ -192,12 +151,8 @@ namespace Cgroup
         logger.log("setMemLimit to " + std::to_string(lim));
         try
         {
-            writeTo(Cgroup::SubSystem::MEMORY,
-                    "memory.limit_in_bytes",
-                    lim);
-            writeTo(Cgroup::SubSystem::MEMORY,
-                    "memory.swappiness",
-                    0);
+            writeTo("memory.max", lim);
+            writeTo("memory.swap.max", 0);
         }
         catch(std::filesystem::filesystem_error &fse)
         {
@@ -212,9 +167,7 @@ namespace Cgroup
         logger.log("setPidLimit to " + std::to_string(lim));
         try
         {
-            writeTo(Cgroup::SubSystem::PIDS,
-                    "pids.max",
-                    lim);
+            writeTo("pids.max", lim);
         }
         catch(std::filesystem::filesystem_error &fse)
         {
@@ -230,55 +183,52 @@ namespace Cgroup
         try
         {
             return Cgroup::readFrom<long long>(
-              Cgroup::SubSystem::MEMORY,
-              "memory.max_usage_in_bytes");
+              "memory.peak");
         }
         catch(std::filesystem::filesystem_error &fse)
         {
             logger.err(fse.what());
             return __LONG_LONG_MAX__;
         }
+    }
+
+    long long Cgroup::getTime(const std::string &type) const
+    {
+        try
+        {
+            auto time =
+              readFrom<std::stringstream>("cpu.stat");
+            std::string key, value;
+            while(time >> key >> value)
+            {
+                if(key == type)
+                {
+                    return std::stoll(value) / 1000;
+                }
+            }
+        }
+        catch(std::filesystem::filesystem_error &fse)
+        {
+            logger.err(fse.what());
+        }
+        return __LONG_LONG_MAX__;
     }
 
     long long Cgroup::getTimeUsr() const
     {
         logger.log("getTimeUsr");
-        try
-        {
-            return Cgroup::readFrom<long long>(
-                     Cgroup::SubSystem::CPUACCT,
-                     "cpuacct.usage_user")
-                   / 1000 / 1000;
-        }
-        catch(std::filesystem::filesystem_error &fse)
-        {
-            logger.err(fse.what());
-            return __LONG_LONG_MAX__;
-        }
+        return getTime("user_usec");
     }
 
     long long Cgroup::getTimeSys() const
     {
         logger.log("getTimeSys");
-        try
-        {
-            return Cgroup::readFrom<long long>(
-                     Cgroup::SubSystem::CPUACCT,
-                     "cpuacct.usage_sys")
-                   / 1000 / 1000;
-        }
-        catch(std::filesystem::filesystem_error &fse)
-        {
-            logger.err(fse.what());
-            return __LONG_LONG_MAX__;
-        }
+        return getTime("system_usec");
     }
 
-    std::vector<pid_t>
-    Cgroup::getPidInGroup(Cgroup::SubSystem ss) const
+    std::vector<pid_t> Cgroup::getPidInGroup() const
     {
         std::filesystem::path path = CgroupFsBase;
-        path /= Cgroup::getSubSystemDir(ss);
         path /= CGroupPath;
         path /= "cgroup.procs";
         std::error_code ec;
@@ -297,7 +247,7 @@ namespace Cgroup
         else
         {
             throw std::filesystem::filesystem_error(
-              "SubSystem not exist",
+              "cgroup.procs not exist",
               path,
               ec);
         }
@@ -309,24 +259,19 @@ namespace Cgroup
         {
             logger.log("remove cgroup "
                        + CGroupPath.string());
-            for(const auto &subDir: CgroupFsDirs)
+            std::filesystem::path path = CgroupFsBase;
+            path /= CGroupPath;
+            logger.log("remove " + path.string());
+            try
             {
-                std::filesystem::path path = CgroupFsBase;
-                path /= subDir;
-                path /= CGroupPath;
-                logger.log("remove " + path.string());
-                try
+                if(std::filesystem::is_directory(path))
                 {
-                    if(std::filesystem::is_directory(path))
-                    {
-                        std::filesystem::remove(path);
-                    }
+                    std::filesystem::remove_all(path);
                 }
-                catch(
-                  std::filesystem::filesystem_error &fse)
-                {
-                    logger.err(fse.what());
-                }
+            }
+            catch(std::filesystem::filesystem_error &fse)
+            {
+                logger.err(fse.what());
             }
             logger.log("removed");
         }

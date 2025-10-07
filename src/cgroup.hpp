@@ -20,33 +20,20 @@ namespace Cgroup
         const std::filesystem::path CGroupPath;
         Logger::Logger              logger;
         const pid_t                 masterPid;
-        enum class SubSystem
-        {
-            CPU     = 0,
-            CPUACCT = 1,
-            MEMORY  = 2,
-            PIDS    = 3
-        };
 
-        static const std::filesystem::path &
-        getSubSystemDir(SubSystem ss);
-
-        void writeTo(SubSystem                    subSystem,
-                     const std::filesystem::path &file,
+        void writeTo(const std::filesystem::path &file,
                      std::string content) const;
 
-        void writeTo(SubSystem                    subSystem,
-                     const std::filesystem::path &file,
+        void writeTo(const std::filesystem::path &file,
                      long long content) const;
 
         template <typename T>
-        T readFrom(SubSystem                    subSystem,
-                   const std::filesystem::path &file) const;
+        T readFrom(const std::filesystem::path &file) const;
+
+        long long getTime(const std::string &type) const;
 
     public:
         static const std::filesystem::path CgroupFsBase;
-        static const std::vector<std::filesystem::path>
-          CgroupFsDirs;
 
         Cgroup(const std::string &name);
         bool      setCpuLimit(long long lim) const;
@@ -57,8 +44,7 @@ namespace Cgroup
         long long getTimeSys() const;
         bool      attach(pid_t pid) const;
 
-        std::vector<pid_t>
-        getPidInGroup(SubSystem ss = SubSystem::PIDS) const;
+        std::vector<pid_t> getPidInGroup() const;
 
         ~Cgroup();
     };
